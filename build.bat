@@ -1,0 +1,10 @@
+cmake -B build -DCMAKE_EXPORT_COMPILE_COMMANDS=ON -DCMAKE_BUILD_TYPE=Release -DCMAKE_TOOLCHAIN_FILE=C:/MyApp/android-ndk-r27d/build/cmake/android.toolchain.cmake -DANDROID_TOOLCHAIN=clang -DANDROID_NATIVE_API_LEVEL=30 -DANDROID_STL=c++_shared -DANDROID_ABI=arm64-v8a -DANDROID_CPP_FEATURES=rtti
+cd build
+ninja -j12
+
+cd ..
+adb logcat -c
+adb push build/libshatl.so /data/local/tmp/hook
+adb shell "su -c /data/local/tmp/hook/run.sh"
+
+adb logcat -s shatl
