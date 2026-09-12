@@ -8,18 +8,74 @@ set(CMAKE_CXX_EXTENSIONS OFF)
 
 add_subdirectory(third-party/imgui)
 add_subdirectory(third-party/xdl)
+add_subdirectory(third-party/protobuf)
 
-file(GLOB SOURCES "src/*.cpp")
-add_library(shatl SHARED main/lib.cpp ${SOURCES})
+set(PROTO_DIR ${CMAKE_CURRENT_SOURCE_DIR}/proto)
+set(PROTO_OUT_DIR ${CMAKE_CURRENT_BINARY_DIR}/generated)
+
+file(MAKE_DIRECTORY ${PROTO_OUT_DIR})
+
+set(PROTO_FILES
+  ${PROTO_DIR}/player.proto
+)
+
+set(PROTO_SRCS)
+set(PROTO_HDRS)
+
+foreach(PROTO_FILE ${PROTO_FILES})
+  get_filename_component(PROTO_NAME
+    ${PROTO_FILE}
+    NAME_WE
+  )
+
+  list(APPEND PROTO_SRCS
+    ${PROTO_OUT_DIR}/${PROTO_NAME}.pb.cc
+  )
+
+  list(APPEND PROTO_HDRS
+    ${PROTO_OUT_DIR}/${PROTO_NAME}.pb.h
+  )
+endforeach()
+
+add_custom_command(
+  OUTPUT
+  ${PROTO_SRCS}
+  ${PROTO_HDRS}
+
+  COMMAND
+  ${CMAKE_CURRENT_SOURCE_DIR}/tools/protoc
+  --proto_path=${PROTO_DIR}
+  --cpp_out=${PROTO_OUT_DIR}
+  ${PROTO_FILES}
+
+  DEPENDS
+  ${PROTO_FILES}
+  protobuf::protoc
+
+  VERBATIM
+)
+
+add_custom_target(generate_proto
+  DEPENDS
+  ${PROTO_SRCS}
+  ${PROTO_HDRS}
+)
+
+file(GLOB SOURCES src/*.cpp)
+add_library(shatl SHARED main/lib.cpp ${SOURCES} ${PROTO_SRCS})
 
 target_link_libraries(shatl PRIVATE
   log c++_static android
   ${CMAKE_SOURCE_DIR}/third-party/dobby/arm64-v8a/libdobby.a
   imgui EGL GLESv3
-  xdl
+  xdl protobuf::libprotobuf
 )
 
-target_include_directories(shatl PRIVATE third-party/Dobby include third-party/json/single_include)
+target_include_directories(shatl PRIVATE
+  third-party/Dobby
+  include third-party/json/single_include
+  ${PROTO_OUT_DIR}
+)
 add_compile_options(
   -Wall
   -Wextra)

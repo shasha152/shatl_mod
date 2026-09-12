@@ -1,0 +1,23 @@
+syntax = "proto3";
+
+package tl.pro;
+
+enum cmd {
+  none = 0;
+  cmd_confirm = 100;
+  cmd_verify = 101;
+
+  cmd_player_max_value = 1000;
+  cmd_player_float_value = 1001;
+}
+
+message packet {
+  cmd cmd = 1;
+  bytes data = 2;
+  int32 seq = 3;
+}
+
+message confirm {
+  string message = 1;
+  bool ok = 2;
+}

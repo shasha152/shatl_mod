@@ -1,0 +1,1 @@
+protoc --cpp_out=../include/shatl/proto *.proto

@@ -1,0 +1,25 @@
+syntax = "proto3";
+
+package tl.pro;
+
+enum max_value_type {
+  life = 0;
+  mana = 1;
+}
+
+message player_max_value {
+  bool is_open = 1;
+  max_value_type type = 2;
+  int32 max = 3;
+  int32 value = 4;
+}
+
+enum float_value_type {
+  speed = 0;
+}
+
+message player_float_value {
+  bool is_open = 1;
+  float_value_type type = 2;
+  float value = 3;
+}
