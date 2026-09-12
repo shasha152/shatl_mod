@@ -21,12 +21,6 @@ com.and.games505.TerrariaPaie.hook_unknown_game_version.cs
 # Debugger Files
 *.pdb
 
-# Compiled Dynamic libraries
-*.so
-*.dylib
-*.dll
-*.so.*
-
 
 # Fortran module files
 *.mod
