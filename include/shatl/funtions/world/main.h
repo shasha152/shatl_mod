@@ -3,7 +3,7 @@
 #include "shatl/funtions/player/data.h"
 #include "shatl/funtions/world/data.h"
 #include "shatl/il2cpp/il2cpp.h"
-#include "shatl/utils/config.h"
+// #include "shatl/utils/config.h"
 #include "shatl/utils/log.h"
 #include <deque>
 #include <dobby.h>
@@ -56,10 +56,10 @@ install_hook_name(world_update, void, void *game_time) {
 }
 
 install_hook_name(PingMapAdd, void, ping_map *map, il2cpp::vector2 pos) {
-    STATIC_IF_CONFIG_BOOL("world.double_click_minimap_to_teleport") {
-        map->call<void>("Clear");
-        detail::double_click_minimap_to_teleport(pos);
-    }
+    // STATIC_IF_CONFIG_BOOL("world.double_click_minimap_to_teleport") {
+    //     map->call<void>("Clear");
+    //     detail::double_click_minimap_to_teleport(pos);
+    // }
     orig_PingMapAdd(map, pos);
 }
 

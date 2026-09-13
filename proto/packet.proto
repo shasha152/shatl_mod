@@ -1,8 +1,10 @@
 syntax = "proto3";
 
+option optimize_for = LITE_RUNTIME;
+
 package tl.pro;
 
-enum cmd {
+enum pk_cmd {
   none = 0;
   cmd_confirm = 100;
   cmd_verify = 101;
@@ -12,7 +14,7 @@ enum cmd {
 }
 
 message packet {
-  cmd cmd = 1;
+  pk_cmd cmd = 1;
   bytes data = 2;
   int32 seq = 3;
 }

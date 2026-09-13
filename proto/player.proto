@@ -1,6 +1,9 @@
 syntax = "proto3";
 
+option optimize_for = LITE_RUNTIME;
+
 package tl.pro;
+
 
 enum max_value_type {
   life = 0;

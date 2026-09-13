@@ -1,1 +1,1 @@
-protoc --cpp_out=../include/shatl/proto *.proto
+..\tools\protoc *.proto --dart_out=C:\mydev\dart\flutter\shatl_mod_loader\lib\proto
