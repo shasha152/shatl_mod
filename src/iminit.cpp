@@ -1,4 +1,3 @@
-#include "shatl/imgui/detail/font.h"
 #include "shatl/imgui/detail/gui.h"
 #include "shatl/imgui/initialize.h"
 #include "shatl/utils/log.h"
@@ -117,13 +116,6 @@ bool initialize_imgui(float w, float h) noexcept {
     // Setup Platform/Renderer backends
     ImGui_ImplAndroid_Init();
     ImGui_ImplOpenGL3_Init("#version 300 es");
-
-    ImFontConfig font_cfg;
-    font_cfg.SizePixels = 22.0f;
-    io.Fonts->AddFontFromMemoryTTF((void *)font_v, font_v_size, 30.0f, nullptr,
-                                   io.Fonts->GetGlyphRangesChineseFull());
-    io.Fonts->AddFontDefault(&font_cfg);
-
     ImGui::StyleColorsLight();
 
     return true;

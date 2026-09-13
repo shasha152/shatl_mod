@@ -1,9 +1,5 @@
 #include "player.pb.h"
-#include "shatl/utils/log.h"
 
-#include <string>
-#include <unordered_map>
-#include <utility>
 #include <vector>
 
 namespace tl {
@@ -13,11 +9,6 @@ struct max_value {
     int max;
     int value;
     bool is_open;
-
-    std::string to_string() {
-        return "(" + std::to_string(max) + "," + std::to_string(value) + "," +
-               std::to_string(is_open) + ")";
-    }
 };
 
 struct float_value {
