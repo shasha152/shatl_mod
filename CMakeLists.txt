@@ -11,10 +11,11 @@ set(protobuf_BUILD_CONFORMANCE OFF CACHE BOOL "" FORCE)
 set(protobuf_BUILD_EXAMPLES OFF CACHE BOOL "" FORCE)
 set(protobuf_BUILD_PROTOC_BINARIES ON CACHE BOOL "" FORCE)
 set(protobuf_BUILD_LIBPROTOC OFF CACHE BOOL "" FORCE)
+set(protobuf_BUILD_LIBUPB OFF CACHE BOOL "" FORCE)
 
 add_subdirectory(third-party/imgui)
 add_subdirectory(third-party/xdl)
-add_subdirectory(third-party/protobuf)
+add_subdirectory(third-party/protobuf EXCLUDE_FROM_ALL)
 
 set(PROTO_DIR ${CMAKE_CURRENT_SOURCE_DIR}/proto)
 set(PROTO_OUT_DIR ${CMAKE_CURRENT_BINARY_DIR}/generated)
@@ -69,27 +70,22 @@ add_custom_target(generate_proto
 )
 
 file(GLOB SOURCES src/*.cpp)
-add_library(pro STATIC ${PROTO_SRCS})
-add_library(shatl SHARED main/lib.cpp ${SOURCES})
-
-target_link_libraries(pro PUBLIC protobuf::libprotobuf-lite)
-target_include_directories(pro PUBLIC
-  ${PROTO_OUT_DIR}
-  ${CMAKE_CURRENT_SOURCE_DIR}/third-party/protobuf/third_party/utf8_range
-)
+add_library(shatl SHARED main/lib.cpp ${SOURCES} ${PROTO_SRCS})
 
 target_link_libraries(shatl PRIVATE
   log c++_static android
   ${CMAKE_SOURCE_DIR}/third-party/dobby/arm64-v8a/libdobby.a
   imgui EGL GLESv3
-  xdl pro
+  xdl protobuf::libprotobuf-lite
 )
 
 target_include_directories(shatl PRIVATE
   third-party/Dobby
-  include third-party/json/single_include
+  third-party/json/single_include
   ${PROTO_OUT_DIR}
+  ${CMAKE_CURRENT_SOURCE_DIR}/third-party/protobuf/third_party/utf8_range
 )
+target_include_directories(shatl PUBLIC ${CMAKE_SOURCE_DIR}/include)
 add_compile_options(
   -Wall
   -Wextra)

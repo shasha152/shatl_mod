@@ -30,6 +30,9 @@ socket::localhsot(std::uint16_t port) noexcept {
     sockaddr_in.sin_family = AF_INET;
     sockaddr_in.sin_port = htons(port);
     sockaddr_in.sin_addr.s_addr = htonl(INADDR_LOOPBACK);
+
+    int yes = 1;
+    ::setsockopt(msock.sock, SOL_SOCKET, SO_REUSEADDR, &yes, sizeof(yes));
     auto res = ::bind(msock.sock, reinterpret_cast<sockaddr *>(&sockaddr_in),
                       sizeof(sockaddr_in));
     if (res == -1)

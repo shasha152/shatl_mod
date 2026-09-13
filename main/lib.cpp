@@ -1,3 +1,4 @@
+#include "shatl/funtions/maininit.h"
 #include "shatl/funtions/server.h"
 #include "shatl/il2cpp/il2cpp.h"
 #include "shatl/imgui/initialize.h"
@@ -15,7 +16,7 @@ void hook_thread() noexcept {
     while (!tl::il2cpp::init()) {
         sleep(1);
     }
-
+    tl::func::initialize();
     LOGI("初始化成功");
     server.run();
 }

@@ -1,9 +1,5 @@
 #pragma once
 
-#include "data.h"
-#include "shatl/il2cpp/il2cpp.h"
-// #include "shatl/utils/config.h"
-
 namespace tl {
 namespace func {
 inline void set_light_color() noexcept {

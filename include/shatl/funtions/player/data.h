@@ -1,6 +1,6 @@
 #pragma once
 
-#include "../entity/data.h"
+#include "shatl/funtions/entity/data.h"
 #include "shatl/il2cpp/il2cpp.h"
 
 namespace tl {
