@@ -1,3 +1,4 @@
+#include "shatl/imgui/def.h"
 #include "shatl/imgui/detail/gui.h"
 #include "shatl/imgui/initialize.h"
 #include "shatl/utils/log.h"
@@ -122,10 +123,12 @@ bool initialize_imgui(float w, float h) noexcept {
 }
 
 bool initialize() noexcept {
+#if IS_ENABLE_DEBUG_GUI
     if (!initialize_input()) {
         destroy();
         return false;
     }
+#endif
 
     if (!initialize_egl()) {
         destroy();
@@ -136,10 +139,10 @@ bool initialize() noexcept {
 }
 
 void destroy() noexcept {
-    if (egl_handle)
+    if (egl_handle) {
         dlclose(egl_handle);
-
-    DobbyDestroy(egl_swapbuffer_symbol);
+        DobbyDestroy(egl_swapbuffer_symbol);
+    }
     DobbyDestroy(input_symbol);
 
     egl_swapbuffer_symbol = nullptr;

@@ -11,6 +11,9 @@ enum pk_cmd {
 
   cmd_player_max_value = 1000;
   cmd_player_float_value = 1001;
+  cmd_player_bool_value = 1002;
+
+  cmd_player_get_bag = 1100;
 }
 
 message packet {
@@ -22,4 +25,6 @@ message packet {
 message confirm {
   string message = 1;
   bool ok = 2;
+  optional pk_cmd cmd = 3;
+  optional bytes data = 4;
 }

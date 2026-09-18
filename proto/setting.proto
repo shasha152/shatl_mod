@@ -1,0 +1,26 @@
+syntax = "proto3";
+
+option optimize_for = LITE_RUNTIME;
+
+package tl.pro;
+
+
+enum float_value_type {
+  speed = 0;
+}
+
+message REQfloat_value {
+  bool is_open = 1;
+  float_value_type type = 2;
+  float value = 3;
+}
+
+enum bool_value_type {
+  light_color = 0;
+  double_click_teleport = 1;
+}
+
+message REQbool_value {
+  bool is_open = 1;
+  bool_value_type type = 2;
+}

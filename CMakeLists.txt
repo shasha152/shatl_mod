@@ -25,6 +25,8 @@ file(MAKE_DIRECTORY ${PROTO_OUT_DIR})
 set(PROTO_FILES
   ${PROTO_DIR}/player.proto
   ${PROTO_DIR}/packet.proto
+  ${PROTO_DIR}/setting.proto
+  ${PROTO_DIR}/item.proto
 )
 
 set(PROTO_SRCS)

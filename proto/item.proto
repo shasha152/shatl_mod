@@ -1,0 +1,12 @@
+syntax = "proto3";
+
+option optimize_for = LITE_RUNTIME;
+
+package tl.pro;
+
+message item {
+  int32 stack = 1;
+  int32 maxStack = 2;
+  int32 type = 3;
+  string name = 4;
+}

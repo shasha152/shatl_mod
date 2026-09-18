@@ -4,10 +4,14 @@
 #include "shatl/utils/log.h"
 #include "socket.h"
 #include <cstdint>
+#include <utility>
 #include <vector>
 
 namespace tl {
 namespace net {
+
+// namespace detail
+
 template <typename Server> class basic_server {
     Server server;
     pro::packet packet;
@@ -17,7 +21,9 @@ template <typename Server> class basic_server {
   public:
     using server_type = Server;
 
-    basic_server(std::uint16_t port) noexcept {
+    template <typename... Args>
+    basic_server(std::uint16_t port, Args &&...args) noexcept
+        : server(std::forward<Args>(args)...) {
         auto [s, e] = socket::localhsot(port);
         if (e)
             LOGW("%s", e.message().c_str());
@@ -30,7 +36,6 @@ template <typename Server> class basic_server {
     }
     void run() noexcept {
         while (true) {
-            LOGI("监听中");
             auto [s, e] = listen_socket.accept();
             if (e) {
                 LOGW("%s", e.message().c_str());

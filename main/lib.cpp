@@ -7,17 +7,20 @@
 #include <unistd.h>
 
 void hook_thread() noexcept {
+    LOGI("服务器初始化");
     tl::func::server server(39520);
+    sleep(2);
+    while (!tl::il2cpp::init()) {
+        sleep(1);
+    }
 
+    LOGI("imgui初始化");
     while (!tl::im::initialize()) {
         sleep(1);
     }
 
-    while (!tl::il2cpp::init()) {
-        sleep(1);
-    }
     tl::func::initialize();
-    LOGI("初始化成功");
+    LOGI("服务器启动");
     server.run();
 }
 

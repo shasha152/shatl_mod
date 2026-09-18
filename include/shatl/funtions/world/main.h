@@ -1,16 +1,20 @@
 #pragma once
 
+#include "../config.h"
 #include "shatl/funtions/player/data.h"
 #include "shatl/funtions/world/data.h"
 #include "shatl/il2cpp/il2cpp.h"
+
 // #include "shatl/utils/config.h"
 #include "shatl/utils/log.h"
 #include <deque>
 #include <dobby.h>
 #include <functional>
+#include <future>
 #include <mutex>
 #include <utility>
 #include <vector>
+
 
 namespace tl {
 namespace func {
@@ -19,11 +23,31 @@ inline std::deque<std::function<void()>> once_function;
 inline std::mutex once_function_mtx;
 
 template <typename Func>
-inline void register_once_function(Func &&func) noexcept {
-    auto mfunc = std::function<void()>(std::forward<Func>(func));
+std::future<std::invoke_result_t<Func>> register_once_function(Func &&func) {
+    using ReturnType = std::invoke_result_t<Func>;
 
-    std::lock_guard lock(once_function_mtx);
-    once_function.emplace_back(std::move(mfunc));
+    auto promise = std::make_shared<std::promise<ReturnType>>();
+    auto future = promise->get_future();
+
+    auto task = [func = std::forward<Func>(func), promise]() mutable {
+        try {
+            if constexpr (std::is_void_v<ReturnType>) {
+                std::invoke(std::move(func));
+                promise->set_value();
+            } else {
+                promise->set_value(std::invoke(std::move(func)));
+            }
+        } catch (...) {
+            promise->set_exception(std::current_exception());
+        }
+    };
+
+    {
+        std::lock_guard lock(once_function_mtx);
+        once_function.emplace_back(std::move(task));
+    }
+
+    return future;
 }
 
 inline void invoke_once_function() noexcept {
@@ -56,10 +80,10 @@ install_hook_name(world_update, void, void *game_time) {
 }
 
 install_hook_name(PingMapAdd, void, ping_map *map, il2cpp::vector2 pos) {
-    // STATIC_IF_CONFIG_BOOL("world.double_click_minimap_to_teleport") {
-    //     map->call<void>("Clear");
-    //     detail::double_click_minimap_to_teleport(pos);
-    // }
+    if (config::ins().bool_value[pro::double_click_teleport]) {
+        map->call<void>("Clear");
+        detail::double_click_minimap_to_teleport(pos);
+    }
     orig_PingMapAdd(map, pos);
 }
 
