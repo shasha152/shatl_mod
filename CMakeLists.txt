@@ -71,7 +71,7 @@ add_custom_target(generate_proto
   ${PROTO_HDRS}
 )
 
-file(GLOB SOURCES src/*.cpp)
+file(GLOB SOURCES src/*.cpp src/register/*.cpp src/server/*.cpp)
 add_library(shatl SHARED main/lib.cpp ${SOURCES} ${PROTO_SRCS})
 
 target_link_libraries(shatl PRIVATE

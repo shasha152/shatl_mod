@@ -3,6 +3,7 @@
 #include "shatl/il2cpp/il2cpp.h"
 #include "shatl/imgui/initialize.h"
 #include "shatl/utils/log.h"
+#include <memory>
 #include <thread>
 #include <unistd.h>
 
@@ -26,7 +27,9 @@ void hook_thread() noexcept {
 
 // Terraria.GameContent.TextureAssets
 
+inline static std::thread *thread;
+
 __attribute__((constructor)) void lib_main() {
-    std::thread thread(hook_thread);
-    thread.detach();
+    thread = new std::thread(hook_thread);
+    thread->detach();
 }

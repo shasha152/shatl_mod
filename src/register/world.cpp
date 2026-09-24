@@ -1,7 +1,6 @@
-#pragma once
-
-#include "../config.h"
-#include "data.h"
+#include "shatl/funtions/detail/world.h"
+#include "shatl/funtions/config.h"
+#include "shatl/funtions/detail/localuser_game_state.h"
 
 namespace tl {
 namespace func {
@@ -22,5 +21,9 @@ inline void set_light_color() noexcept {
         (*colors2)[0] = il2cpp::vector3{100.f, 100.f, 100.f};
     }
 }
+
+
+TL_Register_World_Call(set_light_color);
+
 } // namespace func
 } // namespace tl

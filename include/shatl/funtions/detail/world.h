@@ -1,23 +1,50 @@
 #pragma once
 
-#include "../config.h"
-#include "shatl/funtions/player/data.h"
-#include "shatl/funtions/world/data.h"
+#include "item.h"
+#include "player.h"
+#include "shatl/funtions/config.h"
 #include "shatl/il2cpp/il2cpp.h"
-
-// #include "shatl/utils/config.h"
-#include "shatl/utils/log.h"
 #include <deque>
 #include <dobby.h>
 #include <functional>
 #include <future>
-#include <mutex>
-#include <utility>
-#include <vector>
 
 
 namespace tl {
 namespace func {
+struct world : il2cpp::object<world> {
+    static world *instance() noexcept {
+        static auto main_class = il2cpp::_class::create(
+            il2cpp::assembly::create("Assembly-CSharp.dll"), "Terraria",
+            "Main");
+        return main_class->mfield("instance")->static_value<world *>();
+    }
+};
+
+struct world_item : il2cpp::object<world_item> {
+
+    static il2cpp::array<world_item *> *world_items() noexcept {
+        auto items =
+            world::instance()->static_get<il2cpp::array<world_item *> *>(
+                "item");
+        return items;
+    }
+};
+
+struct star : il2cpp::object<star> {
+    static void star_fall(float posX) noexcept {
+        static_call2<void>("Assembly-CSharp.dll", "Terraria", "Star",
+                           "SpawnStars", (int)posX);
+    }
+};
+
+struct ping_map : il2cpp::object<ping_map> {
+    // static ping_map* main_ping_map() noexcept {
+    //     // world.double_click_minimap_to_teleport
+
+    // }
+};
+
 inline std::vector<std::function<void()>> static_register_function;
 inline std::deque<std::function<void()>> once_function;
 inline std::mutex once_function_mtx;
@@ -41,7 +68,6 @@ std::future<std::invoke_result_t<Func>> register_once_function(Func &&func) {
             promise->set_exception(std::current_exception());
         }
     };
-
     {
         std::lock_guard lock(once_function_mtx);
         once_function.emplace_back(std::move(task));
@@ -51,16 +77,18 @@ std::future<std::invoke_result_t<Func>> register_once_function(Func &&func) {
 }
 
 inline void invoke_once_function() noexcept {
-    std::unique_lock lock(once_function_mtx);
-    if (once_function.empty())
-        return;
+    std::function<void()> func;
 
-    auto &func = once_function.front();
+    {
+        std::lock_guard lock(once_function_mtx);
+        if (once_function.empty())
+            return;
 
-    lock.unlock();
+        func = std::move(once_function.front());
+        once_function.pop_front();
+    }
+
     func();
-    lock.lock();
-    once_function.pop_front();
 }
 
 namespace detail {
@@ -72,10 +100,11 @@ inline void double_click_minimap_to_teleport(il2cpp::vector2 pos) noexcept {
 } // namespace detail
 
 install_hook_name(world_update, void, void *game_time) {
-    // LOGI("%ld", register_function.size());
     for (auto &func : static_register_function)
         func();
+
     invoke_once_function();
+
     return orig_world_update(game_time);
 }
 
@@ -92,13 +121,13 @@ inline void log_player_addr() noexcept {
     LOGI("%p", p);
 }
 
-inline void grab_all_world_item() {
-    auto p = world::instance()->static_call<player *>("get_LocalPlayer");
-    auto items = world_item::world_items();
-    if (items != nullptr) {
-        for (auto item : *items)
-            p->call<void>("PickupItem", item);
-    }
+
+inline il2cpp::array<item *> *get_local_player_bag() {
+    auto player_future = register_once_function([]() {
+        return world::instance()->static_call<player *>("get_LocalPlayer");
+    });
+    player_future.wait();
+    return player_future.get()->get<il2cpp::array<item *> *>("inventory");
 }
 
 inline void world_init() noexcept {
@@ -115,8 +144,9 @@ struct __register_function {
         static_register_function.emplace_back(std::forward<Func>(func));
     }
 };
-} // namespace func
-} // namespace tl
 
 #define TL_Register_World_Call(fun)                                            \
     static ::tl::func::__register_function reg__##fun { fun }
+
+} // namespace func
+} // namespace tl

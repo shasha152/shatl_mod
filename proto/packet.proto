@@ -14,11 +14,16 @@ enum pk_cmd {
   cmd_player_bool_value = 1002;
 
   cmd_player_get_bag = 1100;
+  cmd_get_item_name = 1101;
+  cmd_set_item_type = 1102;
+  cmd_set_item_pro = 1103;
+
+  cmd_grab_world_item = 1200;
 }
 
 message packet {
   pk_cmd cmd = 1;
-  bytes data = 2;
+  optional bytes data = 2;
   int32 seq = 3;
 }
 

@@ -200,6 +200,10 @@ class il2cpp {
             return str ? str : "";
         }
 
+        _class *parent() const noexcept {
+            return il2cpp_invoke<_class *>("il2cpp_class_get_parent", this);
+        }
+
         method *mmethod(std::string_view name, int argc = -1) const noexcept {
             auto m = method::create(this, name, argc);
             if (m == nullptr) {
@@ -282,7 +286,7 @@ class il2cpp {
         }
     };
     template <std::size_t I> struct tag {};
-    template <typename = tag<0>> struct object {
+    template <typename Tag = tag<0>> struct object {
         _class *klass;
         void *monitor;
 

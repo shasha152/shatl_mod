@@ -119,6 +119,8 @@ struct item_ex {
     bool hasVanityEffects;
 };
 
-struct item : il2cpp::object<item>, item_ex {};
+struct item : il2cpp::object<item>, item_ex {
+    void change_item(int type) noexcept { call<void>("ChangeItemType", type); }
+};
 } // namespace func
 } // namespace tl

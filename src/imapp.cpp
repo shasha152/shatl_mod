@@ -1,5 +1,6 @@
-#include "shatl/funtions/lang/data.h"
-#include "shatl/funtions/player/main.h"
+#include "shatl/funtions/detail/player.h"
+#include "shatl/funtions/detail/world.h"
+#include "shatl/funtions/detail/lang.h"
 #include "shatl/imgui/def.h"
 #include "shatl/imgui/detail/gui.h"
 #include "shatl/utils/log.h"
@@ -20,9 +21,11 @@ void detail::draw_main_gui(int w, int h) noexcept {
     if (ImGui::Begin("Debug")) {
         if (ImGui::Button("local player bag")) {
             auto bag = func::get_local_player_bag();
-            LOGI("array_size:%zu", bag->size());
-            for (auto item : *bag) {
-                LOGI("type:%d,number:%d", item->type, item->stack);
+            if (bag) {
+                LOGI("array_size:%zu", bag->size());
+                for (auto item : *bag) {
+                    LOGI("type:%d,number:%d", item->type, item->stack);
+                }
             }
         }
         if (ImGui::Button("item name")) {
@@ -31,6 +34,13 @@ void detail::draw_main_gui(int w, int h) noexcept {
                 LOGI("%s:%s", txt->key->to_string().c_str(),
                      txt->value->to_string().c_str());
             }
+        }
+
+        if (ImGui::Button("tiandingjian")) {
+            auto bag = func::get_local_player_bag();
+            (*bag)[0]->stack = 1;
+            func::register_once_function(
+                [bag]() { (*bag)[0]->change_item(4956); });
         }
     }
     ImGui::End();

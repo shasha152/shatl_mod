@@ -1,6 +1,6 @@
 #include "shatl/funtions/maininit.h"
-#include "shatl/funtions/lang/data.h"
-#include "shatl/funtions/world/main.h"
+#include "shatl/funtions/detail/lang.h"
+#include "shatl/funtions/detail/world.h"
 
 void tl::func::initialize() noexcept {
     world_init();

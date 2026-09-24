@@ -8,5 +8,26 @@ message item {
   int32 stack = 1;
   int32 maxStack = 2;
   int32 type = 3;
-  string name = 4;
+  float damage = 4;
+  float scale = 5;
+  int32 useTime = 6;
+  int32 defense = 7;
+  int32 crit = 8;
+  float knockBack = 9;
+  int32 shoot = 10;
+  float shootSpeed = 11;
+}
+
+message RESitem_names {
+  repeated string names = 1;
+}
+
+message REQset_item_type {
+  int32 type = 1;
+  int32 index = 2;
+}
+
+message REQset_item_property {
+  item sitem = 1;
+  int32 index = 2;
 }

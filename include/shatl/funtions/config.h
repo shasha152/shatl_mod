@@ -39,7 +39,6 @@ struct config {
     config() noexcept { bool_value.fill(false); }
 };
 
-template <typename Packet> struct packet_handler {};
 // namespace tl
 } // namespace func
 } // namespace tl

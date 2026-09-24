@@ -1,9 +1,5 @@
-#pragma once
-
-#include "../config.h"
-#include "data.h"
-#include "shatl/funtions/item/data.h"
-#include "shatl/funtions/world/main.h"
+#include "shatl/funtions/config.h"
+#include "shatl/funtions/detail/world.h"
 
 namespace tl {
 namespace func {
@@ -58,15 +54,10 @@ inline void set_speed() {
     }
 }
 
-inline il2cpp::array<item *> *get_local_player_bag() {
-    auto player_future = register_once_function([]() {
-        return world::instance()->static_call<player *>("get_LocalPlayer");
-    });
-    player_future.wait();
-    return player_future.get()->get<il2cpp::array<item *> *>("inventory");
-}
-
-// PickupItem
+TL_Register_World_Call(set_life);
+TL_Register_World_Call(set_mana);
+TL_Register_World_Call(set_speed);
+TL_Register_World_Call(set_instantkill);
 
 } // namespace func
 } // namespace tl
