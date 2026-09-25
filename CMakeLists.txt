@@ -27,6 +27,7 @@ set(PROTO_FILES
   ${PROTO_DIR}/packet.proto
   ${PROTO_DIR}/setting.proto
   ${PROTO_DIR}/item.proto
+  ${PROTO_DIR}/multi_player.proto
 )
 
 set(PROTO_SRCS)

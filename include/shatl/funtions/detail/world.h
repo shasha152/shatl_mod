@@ -1,23 +1,59 @@
 #pragma once
 
+#include "entity.h"
 #include "item.h"
+#include "npc.h"
 #include "player.h"
 #include "shatl/funtions/config.h"
+#include "shatl/funtions/detail/player.h"
 #include "shatl/il2cpp/il2cpp.h"
+#include "shatl/imgui/detail/gui.h"
 #include <deque>
 #include <dobby.h>
 #include <functional>
 #include <future>
 
-
 namespace tl {
 namespace func {
 struct world : il2cpp::object<world> {
-    static world *instance() noexcept {
-        static auto main_class = il2cpp::_class::create(
+    inline static il2cpp::_class *_main_class = nullptr;
+    inline static player *_local_player = nullptr;
+
+    static void init() noexcept {
+        _main_class = il2cpp::_class::create(
             il2cpp::assembly::create("Assembly-CSharp.dll"), "Terraria",
             "Main");
-        return main_class->mfield("instance")->static_value<world *>();
+    }
+    static world *instance() noexcept {
+
+        return _main_class->mfield("instance")->static_value<world *>();
+    }
+
+    static il2cpp::array<npc *> *npcs() noexcept {
+        return _main_class->mfield("npc")
+            ->static_value<il2cpp::array<npc *> *>();
+    }
+
+    static il2cpp::array<player *> *players() noexcept {
+        return _main_class->mfield("player")
+            ->static_value<il2cpp::array<struct player *> *>();
+    }
+
+    static il2cpp::vector2 to_real_screen(il2cpp::vector2 pos) noexcept {
+        float scale_x = (float)im::detail::get_screen_width() /
+                        _main_class->mmethod("get_screenWidth")->invoke<int>();
+        float scale_y = (float)im::detail::get_screen_height() /
+                        _main_class->mmethod("get_screenHeight")->invoke<int>();
+
+        return pos * il2cpp::vector2(scale_x, scale_y);
+    }
+
+    static player *local_player() noexcept {
+        if (_local_player == nullptr) {
+            _local_player =
+                _main_class->mmethod("get_LocalPlayer", 0)->invoke<player *>();
+        }
+        return _local_player;
     }
 };
 
@@ -93,13 +129,15 @@ inline void invoke_once_function() noexcept {
 
 namespace detail {
 inline void double_click_minimap_to_teleport(il2cpp::vector2 pos) noexcept {
-    auto p = world::instance()->static_call<player *>("get_LocalPlayer");
+    auto p = world::local_player();
     p->position = (pos * 16);
 }
 
 } // namespace detail
 
 install_hook_name(world_update, void, void *game_time) {
+    world::_local_player =
+        world::_main_class->mmethod("get_LocalPlayer", 0)->invoke<player *>();
     for (auto &func : static_register_function)
         func();
 
@@ -121,16 +159,13 @@ inline void log_player_addr() noexcept {
     LOGI("%p", p);
 }
 
-
 inline il2cpp::array<item *> *get_local_player_bag() {
-    auto player_future = register_once_function([]() {
-        return world::instance()->static_call<player *>("get_LocalPlayer");
-    });
-    player_future.wait();
-    return player_future.get()->get<il2cpp::array<item *> *>("inventory");
+    return world::local_player()->get<il2cpp::array<item *> *>("inventory");
 }
 
 inline void world_init() noexcept {
+    world::init();
+
     install_hook_world_update(
         world::instance()->get_method("Update", 1)->get());
     install_hook_PingMapAdd(world::instance()

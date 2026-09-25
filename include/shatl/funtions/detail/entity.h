@@ -4,7 +4,7 @@
 
 namespace tl {
 namespace func {
-struct entity {
+struct entity_ex {
     int whoAmI;
     il2cpp::vector2 position;
     il2cpp::vector2 velocity;
@@ -20,5 +20,7 @@ struct entity {
     char wetCount;
     bool lavaWet;
 };
+
+struct entity : il2cpp::object<entity>, entity_ex {};
 } // namespace func
 } // namespace tl

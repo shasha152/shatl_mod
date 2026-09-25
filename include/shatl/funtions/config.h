@@ -1,5 +1,6 @@
 #pragma once
 
+#include "multi_player.pb.h"
 #include "player.pb.h"
 #include "setting.pb.h"
 
@@ -28,6 +29,7 @@ struct config {
     std::vector<max_value<int>> max_value{pro::max_value_type_MAX + 1};
     std::vector<value<float>> float_value{pro::float_value_type_MAX + 1};
     std::array<bool, pro::float_value_type_MAX + 1> bool_value;
+    pro::REQauto_aim auto_aim;
 
     static config &ins() noexcept {
         static config c{};
@@ -36,7 +38,10 @@ struct config {
     }
 
   private:
-    config() noexcept { bool_value.fill(false); }
+    config() noexcept {
+        bool_value.fill(false);
+        auto_aim.set_is_open(false);
+    }
 };
 
 // namespace tl

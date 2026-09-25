@@ -9,7 +9,6 @@ inline void set_life() {
     static auto &data = config::ins().max_value[pro::max_value_type::life];
 
     if (data) {
-
         auto p = world::instance()->static_call<player *>("get_LocalPlayer");
         if (p) {
             p->set("statLife", data.value);
@@ -20,9 +19,7 @@ inline void set_life() {
 
 inline void set_mana() {
     static auto &data = config::ins().max_value[pro::max_value_type::mana];
-
     if (data) {
-
         auto p = world::instance()->static_call<player *>("get_LocalPlayer");
         if (p) {
             p->set("statMana", data.value);
@@ -45,7 +42,6 @@ inline void set_instantkill() {
 
 inline void set_speed() {
     static auto &data = config::ins().float_value[pro::float_value_type::speed];
-
     if (data) {
         auto p = world::instance()->static_call<player *>("get_LocalPlayer");
         if (p) {
@@ -53,6 +49,7 @@ inline void set_speed() {
         }
     }
 }
+
 
 TL_Register_World_Call(set_life);
 TL_Register_World_Call(set_mana);

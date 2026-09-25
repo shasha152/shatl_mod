@@ -1,13 +1,15 @@
 #include "packet.pb.h"
+#include "setting.pb.h"
 #include "shatl/funtions/detail/lang.h"
 #include "shatl/funtions/detail/world.h"
 #include "shatl/funtions/server.h"
+#include "shatl/utils/freeze.h"
 #include "shatl/utils/log.h"
 
 namespace tl {
 namespace func {
 class _bool_value_setting : public server_route_caller {
-  public:
+
     bool handle() noexcept override {
         auto value = as<pro::REQbool_value>();
 
@@ -27,19 +29,33 @@ class _float_value_setting : public server_route_caller {
 
         if (value) [[likely]] {
             auto &fv = config::ins().float_value[value->type()];
-            fv.value = value->value();
-            fv.is_enable = value->is_open();
+            if (value->type() == pro::speed) {
+                local_player_speed(value->value(), value->is_open());
+            } else {
+                fv.value = value->value();
+                fv.is_enable = value->is_open();
+            }
         }
         return true;
+    }
+
+  private:
+    void local_player_speed(float value, bool enable) {
+        if (enable) {
+            utils::g_freeze_worker.set(
+                [value]() { world::local_player()->set("moveSpeed", value); },
+                0);
+        } else {
+            utils::g_freeze_worker.clear(0);
+        }
     }
 };
 
 TL_Register_Router(_float_value_setting, pro::cmd_player_float_value);
 
 class _max_value_setting : public server_route_caller {
-  public:
+
     bool handle() noexcept override {
-        LOGI("handler");
         auto value = as<pro::REQplayer_max_value>();
         if (value) [[likely]] {
             auto &data = config::ins().max_value[value->type()];
@@ -54,7 +70,6 @@ class _max_value_setting : public server_route_caller {
 TL_Register_Router(_max_value_setting, pro::cmd_player_max_value);
 
 class _set_item_type : public server_route_caller {
-  public:
     bool handle() noexcept override {
         auto value = as<pro::REQset_item_type>();
         auto bag = func::get_local_player_bag();

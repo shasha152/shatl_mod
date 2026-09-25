@@ -295,7 +295,7 @@ class il2cpp {
             if (f)
                 return f->value<T>(this);
             LOGW("not found %s", name.data());
-            return {};
+            return T{};
         }
 
         template <typename T> void set(std::string_view name, const T &value) {
@@ -375,6 +375,12 @@ class il2cpp {
 
         reference operator[](size_t i) noexcept { return data[i]; }
         const_reference operator[](size_t i) const noexcept { return data[i]; }
+
+        template <typename To> array<To> *transform() noexcept {
+            static_assert(sizeof(To) == sizeof(T),
+                          "transform sizeof(To) != sizeof(T)");
+            return reinterpret_cast<array<To> *>(this);
+        }
     };
 
     template <typename T> struct any_vector2 {
@@ -403,8 +409,14 @@ class il2cpp {
         any_vector2 operator/(const any_vector2 &r) const noexcept {
             return any_vector2{this->x / r.x, this->y / r.y};
         }
+         any_vector2 operator*(const any_vector2 &r) const noexcept {
+            return any_vector2{this->x * r.x, this->y * r.y};
+        }
         any_vector2 operator+(const any_vector2 &r) const noexcept {
             return any_vector2{this->x + r.x, this->y + r.y};
+        }
+        any_vector2 operator-(const any_vector2 &r) const noexcept {
+            return any_vector2{this->x - r.x, this->y - r.y};
         }
 
         T distance(const any_vector2 &r) const noexcept {

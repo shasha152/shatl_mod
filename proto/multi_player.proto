@@ -1,0 +1,14 @@
+syntax = "proto3";
+
+option optimize_for = LITE_RUNTIME;
+
+package tl.pro;
+
+message REQauto_aim {
+  bool is_open = 1;
+  bool npc = 2;
+  bool player = 3;
+  bool auto_use_aim = 4;
+
+  bool is_attack_friendly = 5;
+}

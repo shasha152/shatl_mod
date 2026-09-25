@@ -1,6 +1,7 @@
+#include "shatl/funtions/config.h"
+#include "shatl/funtions/detail/lang.h"
 #include "shatl/funtions/detail/player.h"
 #include "shatl/funtions/detail/world.h"
-#include "shatl/funtions/detail/lang.h"
 #include "shatl/imgui/def.h"
 #include "shatl/imgui/detail/gui.h"
 #include "shatl/utils/log.h"
@@ -12,8 +13,14 @@
 namespace tl {
 namespace im {
 
+inline int width = 0;
+inline int height = 0;
+
 #if IS_ENABLE_DEBUG_GUI
 void detail::draw_main_gui(int w, int h) noexcept {
+    width = w;
+    height = h;
+
     ImGui_ImplOpenGL3_NewFrame();
     ImGui_ImplAndroid_NewFrame(w, h);
     ImGui::NewFrame();
@@ -42,6 +49,25 @@ void detail::draw_main_gui(int w, int h) noexcept {
             func::register_once_function(
                 [bag]() { (*bag)[0]->change_item(4956); });
         }
+
+        if (ImGui::Button("auto_aim")) {
+            func::config::ins().auto_aim.set_is_open(true);
+            func::config::ins().auto_aim.set_npc(true);
+        }
+
+        if (ImGui::Button("local player")) {
+            func::register_once_function([]() {
+                auto p = func::world::local_player();
+                LOGI("%p", p);
+            });
+        }
+
+        if (ImGui::Button("speed")) {
+            auto &data =
+                func::config::ins().float_value[pro::float_value_type::speed];
+            data.is_enable = true;
+            data.value = 10.f;
+        }
     }
     ImGui::End();
     ImGui::Render();
@@ -49,8 +75,14 @@ void detail::draw_main_gui(int w, int h) noexcept {
     ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 }
 #else
-void detail::draw_main_gui(int w, int h) noexcept {}
+void detail::draw_main_gui(int w, int h) noexcept {
+    width = w;
+    height = h;
+}
 #endif
+
+int detail::get_screen_width() noexcept { return width; }
+int detail::get_screen_height() noexcept { return height; }
 
 } // namespace im
 } // namespace tl

@@ -119,6 +119,9 @@ bool initialize_imgui(float w, float h) noexcept {
     ImGui_ImplOpenGL3_Init("#version 300 es");
     ImGui::StyleColorsLight();
 
+    ImGuiStyle &style = ImGui::GetStyle();
+    style.ScaleAllSizes(3);
+
     return true;
 }
 
