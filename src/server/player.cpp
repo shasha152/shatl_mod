@@ -2,7 +2,7 @@
 #include "setting.pb.h"
 #include "shatl/funtions/detail/lang.h"
 #include "shatl/funtions/detail/world.h"
-#include "shatl/funtions/server.h"
+#include "shatl/funtions/service.h"
 #include "shatl/utils/freeze.h"
 #include "shatl/utils/log.h"
 
@@ -44,9 +44,9 @@ class _float_value_setting : public server_route_caller {
         if (enable) {
             utils::g_freeze_worker.set(
                 [value]() { world::local_player()->set("moveSpeed", value); },
-                0);
+                utils::ft::speed);
         } else {
-            utils::g_freeze_worker.clear(0);
+            utils::g_freeze_worker.clear(utils::ft::speed);
         }
     }
 };

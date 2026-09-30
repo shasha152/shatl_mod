@@ -1,7 +1,7 @@
 #include "shatl/funtions/detail/world.h"
 #include "packet.pb.h"
 #include "shatl/funtions/config.h"
-#include "shatl/funtions/server.h"
+#include "shatl/funtions/service.h"
 #include "shatl/utils/log.h"
 
 namespace tl {
@@ -11,8 +11,7 @@ class _grab_world_item : public server_route_caller {
   public:
     bool handle() noexcept override {
         register_once_function([]() {
-            auto p =
-                world::instance()->static_call<player *>("get_LocalPlayer");
+            auto p = world::local_player();
             auto items = world_item::world_items();
             if (items != nullptr) {
                 for (auto item : *items)

@@ -28,6 +28,8 @@ class server_route_caller {
                                      packet->data().size()))
             return to_packet;
 
+        LOGW("解析失败");
+
         return std::nullopt;
     }
 
@@ -116,6 +118,6 @@ template <typename Caller> struct __register_router {
         cmd, #caller                                                           \
     }
 
-using server = net::basic_server<server_body>;
+using service = net::basic_server<server_body>;
 } // namespace func
 } // namespace tl

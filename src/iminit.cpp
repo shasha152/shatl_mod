@@ -1,4 +1,3 @@
-#include "shatl/imgui/def.h"
 #include "shatl/imgui/detail/gui.h"
 #include "shatl/imgui/initialize.h"
 #include "shatl/utils/log.h"

@@ -1,5 +1,5 @@
 #include "shatl/funtions/maininit.h"
-#include "shatl/funtions/server.h"
+#include "shatl/funtions/service.h"
 #include "shatl/il2cpp/il2cpp.h"
 #include "shatl/imgui/initialize.h"
 #include "shatl/utils/freeze.h"
@@ -20,17 +20,15 @@ void hook_thread() noexcept {
 
     tl::func::initialize();
     tl::utils::g_freeze_worker.run();
-    LOGI("服务器初始化");
-    tl::func::server server(39520);
-    LOGI("服务器启动");
-    server.run();
+    LOGI("服务初始化");
+    tl::func::service service(39520);
+    LOGI("服务启动");
+    service.run();
 }
 
 // Terraria.GameContent.TextureAssets
 
-inline std::thread *thread;
-
 __attribute__((constructor)) void lib_main() {
-    thread = new std::thread(hook_thread);
-    thread->detach();
+    std::thread thread(hook_thread);
+    thread.detach();
 }

@@ -28,7 +28,7 @@ template <typename T> struct value : enable {
 struct config {
     std::vector<max_value<int>> max_value{pro::max_value_type_MAX + 1};
     std::vector<value<float>> float_value{pro::float_value_type_MAX + 1};
-    std::array<bool, pro::float_value_type_MAX + 1> bool_value;
+    std::array<bool, pro::bool_value_type_MAX + 1> bool_value;
     pro::REQauto_aim auto_aim;
 
     static config &ins() noexcept {

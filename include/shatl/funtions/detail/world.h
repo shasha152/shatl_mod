@@ -36,7 +36,7 @@ struct world : il2cpp::object<world> {
 
     static il2cpp::array<player *> *players() noexcept {
         return _main_class->mfield("player")
-            ->static_value<il2cpp::array<struct player *> *>();
+            ->static_value<il2cpp::array<player *> *>();
     }
 
     static il2cpp::vector2 to_real_screen(il2cpp::vector2 pos) noexcept {

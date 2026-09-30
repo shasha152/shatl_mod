@@ -2,7 +2,6 @@
 #include "shatl/funtions/detail/lang.h"
 #include "shatl/funtions/detail/player.h"
 #include "shatl/funtions/detail/world.h"
-#include "shatl/imgui/def.h"
 #include "shatl/imgui/detail/gui.h"
 #include "shatl/utils/log.h"
 

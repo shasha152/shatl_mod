@@ -1,5 +1,7 @@
 #pragma once
 
+#define IS_ENABLE_DEBUG_GUI 1
+
 namespace tl {
 namespace im {
 namespace detail {
