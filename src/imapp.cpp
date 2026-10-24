@@ -1,13 +1,19 @@
-#include "shatl/funtions/config.h"
-#include "shatl/funtions/detail/lang.h"
-#include "shatl/funtions/detail/player.h"
-#include "shatl/funtions/detail/world.h"
+#include "shatl/imgui/buffer.h"
 #include "shatl/imgui/detail/gui.h"
 #include "shatl/utils/log.h"
 
 #include <backends/imgui_impl_android.h>
 #include <backends/imgui_impl_opengl3.h>
 #include <imgui.h>
+#include <string>
+
+#if IS_ENABLE_DEBUG_GUI
+#include "shatl/funtions/config.h"
+#include "shatl/funtions/detail/lang.h"
+#include "shatl/funtions/detail/player.h"
+#include "shatl/funtions/detail/world.h"
+#include "shatl/il2cpp/il2cpp.h"
+#endif
 
 namespace tl {
 namespace im {
@@ -15,14 +21,43 @@ namespace im {
 inline int width = 0;
 inline int height = 0;
 
+void draw_buffer(ImDrawList *draw) noexcept {
+    for (auto &line : double_draw_buffer::ins().readble_buffer().lines) {
+        draw->AddLine(line.start, line.end, ImColor(255, 255, 255));
+    }
+
+    for (auto &line : double_draw_buffer::ins().readble_buffer().rects) {
+        draw->AddRect(line.start, line.end, ImColor(255, 255, 255));
+    }
+
+    double_draw_buffer::ins().swap();
+}
+
+class imgui_fram {
+  public:
+    imgui_fram(int w, int h) {
+        width = w;
+        height = h;
+
+        ImGui_ImplOpenGL3_NewFrame();
+        ImGui_ImplAndroid_NewFrame(w, h);
+        ImGui::NewFrame();
+    }
+
+    ~imgui_fram() {
+        ImGui::Render();
+
+        ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
+    }
+};
+
 #if IS_ENABLE_DEBUG_GUI
 void detail::draw_main_gui(int w, int h) noexcept {
-    width = w;
-    height = h;
 
-    ImGui_ImplOpenGL3_NewFrame();
-    ImGui_ImplAndroid_NewFrame(w, h);
-    ImGui::NewFrame();
+    static bool is_show_version = false;
+    static std::string unity_version = "";
+
+    imgui_fram fram(w, h);
 
     if (ImGui::Begin("Debug")) {
         if (ImGui::Button("local player bag")) {
@@ -36,9 +71,14 @@ void detail::draw_main_gui(int w, int h) noexcept {
         }
         if (ImGui::Button("item name")) {
             auto arr = func::lang::get_item_localized_texts();
-            for (auto txt : *arr) {
-                LOGI("%s:%s", txt->key->to_string().c_str(),
-                     txt->value->to_string().c_str());
+            if (arr != nullptr) {
+                for (auto txt : *arr) {
+                    if (txt == nullptr || txt->value == nullptr) [[unlikely]]
+                        continue;
+
+                    LOGI("%s:%s", txt->key->to_string().c_str(),
+                         txt->value->to_string().c_str());
+                }
             }
         }
 
@@ -67,16 +107,30 @@ void detail::draw_main_gui(int w, int h) noexcept {
             data.is_enable = true;
             data.value = 10.f;
         }
+
+        if (ImGui::Button("show version")) {
+            func::register_once_function([]() {
+                unity_version = il2cpp::application::get_unity_version();
+                is_show_version = true;
+            });
+        }
+
+        if (ImGui::Button("New Boss")) {
+            func::register_once_function([]() {
+                func::npc::spawn(func::world::local_player()->position, 50, 0);
+            });
+        }
+
+        if (is_show_version) {
+            ImGui::Text("unity version:%s", unity_version.c_str());
+        }
     }
     ImGui::End();
-    ImGui::Render();
-
-    ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 }
 #else
 void detail::draw_main_gui(int w, int h) noexcept {
-    width = w;
-    height = h;
+    imgui_fram fram(w, h);
+    draw_buffer(ImGui::GetBackgroundDrawList());
 }
 #endif
 

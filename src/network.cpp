@@ -19,7 +19,7 @@ namespace tl {
 namespace net {
 
 std::pair<std::optional<socket>, std::error_code>
-socket::localhsot(std::uint16_t port) noexcept {
+socket::localhost(std::uint16_t port) noexcept {
     socket msock;
     msock.sock = ::socket(AF_INET, SOCK_STREAM, 0);
     if (msock.sock == -1)

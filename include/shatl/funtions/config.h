@@ -1,5 +1,6 @@
 #pragma once
 
+#include "esp.pb.h"
 #include "multi_player.pb.h"
 #include "player.pb.h"
 #include "setting.pb.h"
@@ -30,6 +31,7 @@ struct config {
     std::vector<value<float>> float_value{pro::float_value_type_MAX + 1};
     std::array<bool, pro::bool_value_type_MAX + 1> bool_value;
     pro::REQauto_aim auto_aim;
+    pro::REQdraw_object draw;
 
     static config &ins() noexcept {
         static config c{};
@@ -41,6 +43,9 @@ struct config {
     config() noexcept {
         bool_value.fill(false);
         auto_aim.set_is_open(false);
+        draw.set_draw_npc(false);
+        draw.set_draw_player(false);
+        draw.set_draw_world_item(false);
     }
 };
 

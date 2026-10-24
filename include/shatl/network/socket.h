@@ -29,7 +29,7 @@ class socket {
     socket() = default;
 
     static std::pair<std::optional<socket>, std::error_code>
-    localhsot(std::uint16_t port) noexcept;
+    localhost(std::uint16_t port) noexcept;
 
     std::error_code read(void *buffer, std::size_t size) noexcept;
     std::error_code write(void *buffer, std::size_t size) noexcept;

@@ -49,6 +49,9 @@ class server_body {
 
     void on_accept(net::socket &s) noexcept { socket = &s; }
     void on_data(const pro::packet &packet) noexcept {
+        if (socket == nullptr) [[unlikely]]
+            return;
+
         packet_msg.Clear();
         confirm_msg.Clear();
 
@@ -56,8 +59,7 @@ class server_body {
         packet_msg.set_cmd(pro::pk_cmd::cmd_confirm);
         packet_msg.set_seq(packet.seq());
 
-        if (handle_message(packet)) {
-        }
+        handle_message(packet);
         echo_message();
     }
 

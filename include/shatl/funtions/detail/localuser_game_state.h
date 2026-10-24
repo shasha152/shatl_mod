@@ -8,8 +8,11 @@ struct local_user_game_state : il2cpp::object<local_user_game_state> {
         static auto main_class = il2cpp::_class::create(
             il2cpp::assembly::create("Assembly-CSharp.dll"), "",
             "LocalUserGameState");
-        return main_class->mfield("Instance")
-            ->static_value<local_user_game_state *>();
+        if (main_class == nullptr) [[unlikely]]
+            return nullptr;
+
+        auto f = main_class->mfield("Instance");
+        return f ? f->static_value<local_user_game_state *>() : nullptr;
     }
 };
 
@@ -18,9 +21,14 @@ struct local_user_state_xna : il2cpp::object<local_user_state_xna> {
         static auto main_class = il2cpp::_class::create(
             il2cpp::assembly::create("Assembly-CSharp.dll"), "",
             "LocalUserXNAState");
-        return main_class->mfield("Instance")
-            ->static_value<local_user_state_xna *>();
+        if (main_class == nullptr) [[unlikely]]
+            return nullptr;
+
+        auto f = main_class->mfield("Instance");
+        return f ? f->static_value<local_user_state_xna *>() : nullptr;
     }
+
+    
 };
 } // namespace func
 } // namespace tl

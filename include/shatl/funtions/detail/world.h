@@ -23,36 +23,53 @@ struct world : il2cpp::object<world> {
         _main_class = il2cpp::_class::create(
             il2cpp::assembly::create("Assembly-CSharp.dll"), "Terraria",
             "Main");
+        if (_main_class == nullptr) [[unlikely]]
+            LOGE("未找到 Terraria.Main，游戏版本不匹配？");
     }
     static world *instance() noexcept {
+        if (_main_class == nullptr) [[unlikely]]
+            return nullptr;
 
-        return _main_class->mfield("instance")->static_value<world *>();
+        auto f = _main_class->mfield("instance");
+        return f ? f->static_value<world *>() : nullptr;
     }
 
     static il2cpp::array<npc *> *npcs() noexcept {
-        return _main_class->mfield("npc")
-            ->static_value<il2cpp::array<npc *> *>();
+        if (_main_class == nullptr) [[unlikely]]
+            return nullptr;
+
+        auto f = _main_class->mfield("npc");
+        return f ? f->static_value<il2cpp::array<npc *> *>() : nullptr;
     }
 
     static il2cpp::array<player *> *players() noexcept {
-        return _main_class->mfield("player")
-            ->static_value<il2cpp::array<player *> *>();
+        if (_main_class == nullptr) [[unlikely]]
+            return nullptr;
+
+        auto f = _main_class->mfield("player");
+        return f ? f->static_value<il2cpp::array<player *> *>() : nullptr;
     }
 
     static il2cpp::vector2 to_real_screen(il2cpp::vector2 pos) noexcept {
-        float scale_x = (float)im::detail::get_screen_width() /
-                        _main_class->mmethod("get_screenWidth")->invoke<int>();
+        if (_main_class == nullptr) [[unlikely]]
+            return pos;
+
+        auto screen_width = _main_class->mmethod("get_screenWidth");
+        auto screen_height = _main_class->mmethod("get_screenHeight");
+        if (screen_width == nullptr || screen_height == nullptr) [[unlikely]]
+            return pos;
+
+        float scale_x =
+            (float)im::detail::get_screen_width() / screen_width->invoke<int>();
         float scale_y = (float)im::detail::get_screen_height() /
-                        _main_class->mmethod("get_screenHeight")->invoke<int>();
+                        screen_height->invoke<int>();
 
         return pos * il2cpp::vector2(scale_x, scale_y);
     }
 
     static player *local_player() noexcept {
-        if (_local_player == nullptr) {
-            _local_player =
-                _main_class->mmethod("get_LocalPlayer", 0)->invoke<player *>();
-        }
+        if (_main_class == nullptr) [[unlikely]]
+            return nullptr;
         return _local_player;
     }
 };
@@ -60,10 +77,11 @@ struct world : il2cpp::object<world> {
 struct world_item : il2cpp::object<world_item> {
 
     static il2cpp::array<world_item *> *world_items() noexcept {
-        auto items =
-            world::instance()->static_get<il2cpp::array<world_item *> *>(
-                "item");
-        return items;
+        auto w = world::instance();
+        if (w == nullptr) [[unlikely]]
+            return nullptr;
+
+        return w->static_get<il2cpp::array<world_item *> *>("item");
     }
 };
 
@@ -125,11 +143,15 @@ inline void invoke_once_function() noexcept {
     }
 
     func();
+    invoke_once_function();
 }
 
 namespace detail {
 inline void double_click_minimap_to_teleport(il2cpp::vector2 pos) noexcept {
     auto p = world::local_player();
+    if (p == nullptr) [[unlikely]]
+        return;
+
     p->position = (pos * 16);
 }
 
@@ -137,7 +159,7 @@ inline void double_click_minimap_to_teleport(il2cpp::vector2 pos) noexcept {
 
 install_hook_name(world_update, void, void *game_time) {
     world::_local_player =
-        world::_main_class->mmethod("get_LocalPlayer", 0)->invoke<player *>();
+        world::_main_class->mmethod("get_LocalPlayer")->invoke<player *>();
     for (auto &func : static_register_function)
         func();
 
@@ -147,31 +169,43 @@ install_hook_name(world_update, void, void *game_time) {
 }
 
 install_hook_name(PingMapAdd, void, ping_map *map, il2cpp::vector2 pos) {
-    if (config::ins().bool_value[pro::double_click_teleport]) {
-        map->call<void>("Clear");
+    if (map != nullptr && config::ins().bool_value[pro::double_click_teleport])
         detail::double_click_minimap_to_teleport(pos);
-    }
+
     orig_PingMapAdd(map, pos);
 }
 
-inline void log_player_addr() noexcept {
-    auto p = world::instance()->static_call<void *>("get_LocalPlayer");
-    LOGI("%p", p);
-}
+inline void log_player_addr() noexcept { LOGI("%p", world::local_player()); }
 
 inline il2cpp::array<item *> *get_local_player_bag() {
-    return world::local_player()->get<il2cpp::array<item *> *>("inventory");
+    auto p = world::local_player();
+    if (p == nullptr) [[unlikely]]
+        return nullptr;
+
+    return p->get<il2cpp::array<item *> *>("inventory");
 }
 
 inline void world_init() noexcept {
     world::init();
 
-    install_hook_world_update(
-        world::instance()->get_method("Update", 1)->get());
-    install_hook_PingMapAdd(world::instance()
-                                ->static_get<ping_map *>("Pings")
-                                ->get_method("Add", 1)
-                                ->get());
+    auto w = world::instance();
+    if (w == nullptr) [[unlikely]] {
+        LOGE("取 Main.instance 失败，跳过钩子安装");
+        return;
+    }
+
+    auto update = w->get_method("Update", 1);
+    if (update != nullptr)
+        install_hook_world_update(update->get());
+    else
+        LOGE("未找到 Main.Update，世界回调不会运行");
+
+    auto pings = w->static_get<ping_map *>("Pings");
+    auto ping_add = pings ? pings->get_method("Add", 1) : nullptr;
+    if (ping_add != nullptr)
+        install_hook_PingMapAdd(ping_add->get());
+    else
+        LOGE("未找到 Pings.Add，双击传送不可用");
 }
 
 struct __register_function {

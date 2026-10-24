@@ -9,4 +9,5 @@ void tl::func::initialize() noexcept {
     init_player();
     lang::init();
     utils::init();
+    npc::init();
 }

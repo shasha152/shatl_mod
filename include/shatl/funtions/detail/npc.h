@@ -168,7 +168,25 @@ struct npc_ex {
     bool GoodRestingTileCacheFound;
 };
 
-struct npc : il2cpp::object<npc>, entity_ex, npc_ex {};
+struct npc : il2cpp::object<npc>, entity_ex, npc_ex {
+    inline static il2cpp::_class *_main_class = nullptr;
+
+    bool is_active() noexcept { return life > 0 && timeLeft > 0; }
+
+    static void init() noexcept {
+        _main_class = il2cpp::assembly::create("Assembly-CSharp.dll")
+                          ->mclass("Terraria", "NPC");
+    }
+    // System.Int32 NewNPC(Terraria.DataStructures.IEntitySource source,
+    // System.Int32 X, System.Int32 Y, System.Int32 Type, System.Int32 Start,
+    // System.Single ai0, System.Single ai1, System.Single ai2, System.Single
+    // ai3, System.Int32 Target);
+    static int spawn(il2cpp::vector2 pos, int type, int target) noexcept {
+        return _main_class->mmethod("NewNPC")->invoke<int>(
+            nullptr, static_cast<int>(pos.x), static_cast<int>(pos.y), type, 0,
+            0.0f, 0.0f, 0.0f, target);
+    }
+};
 
 // static_assert(offsetof(npc, GoodRestingTileCacheFound) == 0x280,
 //               "npc offset error");

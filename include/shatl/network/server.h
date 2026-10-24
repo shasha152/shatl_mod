@@ -17,6 +17,7 @@ template <typename Server> class basic_server {
     pro::packet packet;
     socket listen_socket;
     std::vector<char> buffer;
+    bool is_ready = false;
 
   public:
     using server_type = Server;
@@ -24,17 +25,28 @@ template <typename Server> class basic_server {
     template <typename... Args>
     basic_server(std::uint16_t port, Args &&...args) noexcept
         : server(std::forward<Args>(args)...) {
-        auto [s, e] = socket::localhsot(port);
-        if (e)
-            LOGW("%s", e.message().c_str());
+        auto [s, e] = socket::localhost(port);
+        if (e) {
+            LOGE("监听 127.0.0.1:%u 失败: %s", port, e.message().c_str());
+            return;
+        }
 
         listen_socket = std::move(s.value());
 
         e = listen_socket.listen();
-        if (e)
-            LOGW("%s", e.message().c_str());
+        if (e) {
+            LOGE("listen 失败: %s", e.message().c_str());
+            return;
+        }
+
+        is_ready = true;
     }
     void run() noexcept {
+        if (!is_ready) [[unlikely]] {
+            LOGE("服务未就绪，跳过启动");
+            return;
+        }
+
         while (true) {
             auto [s, e] = listen_socket.accept();
             if (e) {

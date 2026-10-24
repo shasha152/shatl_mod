@@ -19,7 +19,7 @@ void hook_thread() noexcept {
     }
 
     tl::func::initialize();
-    tl::utils::g_freeze_worker.run();
+    // tl::utils::g_freeze_worker.run();
     LOGI("服务初始化");
     tl::func::service service(39520);
     LOGI("服务启动");

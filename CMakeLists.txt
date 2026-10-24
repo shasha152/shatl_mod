@@ -28,6 +28,8 @@ set(PROTO_FILES
   ${PROTO_DIR}/setting.proto
   ${PROTO_DIR}/item.proto
   ${PROTO_DIR}/multi_player.proto
+  ${PROTO_DIR}/esp.proto
+  ${PROTO_DIR}/world.proto
 )
 
 set(PROTO_SRCS)

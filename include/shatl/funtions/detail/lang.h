@@ -18,8 +18,12 @@ struct lang : il2cpp::object<lang> {
 
     static il2cpp::array<localized_text *> *
     get_item_localized_texts() noexcept {
-        return kls->mfield("_itemNameCache")
-            ->static_value<il2cpp::array<localized_text *> *>();
+        if (kls == nullptr) [[unlikely]]
+            return nullptr;
+
+        auto f = kls->mfield("_itemNameCache");
+        return f ? f->static_value<il2cpp::array<localized_text *> *>()
+                 : nullptr;
     }
 };
 } // namespace func

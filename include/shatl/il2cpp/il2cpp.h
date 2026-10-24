@@ -189,7 +189,17 @@ class il2cpp {
         static _class *create(const assembly *assembly,
                               std::string_view _namespace,
                               std::string_view name) noexcept {
+            if (assembly == nullptr) [[unlikely]] {
+                LOGW("程序集不存在，无法解析类 %s", name.data());
+                return nullptr;
+            }
+
             void *image = assembly->image();
+            if (image == nullptr) [[unlikely]] {
+                LOGW("程序集未加载，无法解析类 %s", name.data());
+                return nullptr;
+            }
+
             return il2cpp_invoke<_class *>("il2cpp_class_from_name", image,
                                            _namespace.data(), name.data());
         }
@@ -254,7 +264,10 @@ class il2cpp {
             auto assemblies = il2cpp_invoke<assembly **>(
                 "il2cpp_domain_get_assemblies", domain, &size);
 
-            for (auto i = 0; i < size; i++) {
+            if (assemblies == nullptr) [[unlikely]]
+                return nullptr;
+
+            for (size_t i = 0; i < size; i++) {
                 auto _assembly = assemblies[i];
                 if (_assembly == nullptr)
                     continue;
@@ -280,7 +293,6 @@ class il2cpp {
             auto c = _class::create(this, _namespace, name);
             if (c == nullptr) {
                 LOGI("il2cpp_class_from_name failed: name = %s", name.data());
-                return nullptr;
             }
             return c;
         }
@@ -291,6 +303,11 @@ class il2cpp {
         void *monitor;
 
         template <typename T> T get(std::string_view name) const {
+            if (klass == nullptr) [[unlikely]] {
+                LOGW("对象类型未知，读字段 %s 失败", name.data());
+                return T{};
+            }
+
             auto f = klass->mfield(name);
             if (f)
                 return f->value<T>(this);
@@ -299,6 +316,11 @@ class il2cpp {
         }
 
         template <typename T> void set(std::string_view name, const T &value) {
+            if (klass == nullptr) [[unlikely]] {
+                LOGW("对象类型未知，写字段 %s 失败", name.data());
+                return;
+            }
+
             auto f = klass->mfield(name);
             if (f)
                 return f->value<T>(this, value);
@@ -306,12 +328,21 @@ class il2cpp {
         }
 
         template <typename T> T static_get(std::string_view name) const {
-            return klass->mfield(name)->static_value<T>();
+            if (klass == nullptr) [[unlikely]]
+                return T{};
+
+            auto f = klass->mfield(name);
+            return f ? f->static_value<T>() : T{};
         }
 
         template <typename T>
         void static_set(std::string_view name, const T &value) {
-            klass->mfield(name)->static_value<T>(value);
+            if (klass == nullptr) [[unlikely]]
+                return;
+
+            auto f = klass->mfield(name);
+            if (f)
+                f->static_value<T>(value);
         }
 
         template <typename Ret, typename... Args>
@@ -324,8 +355,8 @@ class il2cpp {
 
         template <typename Ret, typename... Args>
         Ret static_call(std::string_view name, Args... args) {
-            return get_method(name, sizeof...(args))
-                ->template invoke<Ret>(args...);
+            auto m = get_method(name, sizeof...(args));
+            return m->template invoke<Ret>(args...);
         }
 
         template <typename Ret, typename... Args>
@@ -333,19 +364,35 @@ class il2cpp {
                                        std::string_view _namespace,
                                        std::string_view cls,
                                        std::string_view name, Args... args) {
-            if (!methods.contains(name))
-                methods.emplace(
-                    name, _class::create(assembly::create(dll), _namespace, cls)
-                              ->mmethod(name, sizeof...(args)));
+            auto it = methods.find(name);
+            if (it == methods.end() || it->second == nullptr) {
+                auto kls =
+                    _class::create(assembly::create(dll), _namespace, cls);
 
-            return methods[name]->invoke<Ret>(args...);
+                auto m = kls->mmethod(name, sizeof...(args));
+
+                it = methods.insert_or_assign(name, m).first;
+            }
+
+            return it->second->template invoke<Ret>(args...);
         }
 
         method *get_method(std::string_view name, int args_num) noexcept {
-            if (!methods.contains(name))
-                methods.emplace(name, klass->mmethod(name, args_num));
+            if (klass == nullptr) [[unlikely]] {
+                LOGW("对象类型未知，找不到方法 %s", name.data());
+                return nullptr;
+            }
 
-            return methods[name];
+            auto it = methods.find(name);
+            if (it == methods.end() || it->second == nullptr) {
+                auto m = klass->mmethod(name, args_num);
+                if (m == nullptr)
+                    return nullptr;
+
+                it = methods.insert_or_assign(name, m).first;
+            }
+
+            return it->second;
         }
 
       private:
@@ -409,7 +456,7 @@ class il2cpp {
         any_vector2 operator/(const any_vector2 &r) const noexcept {
             return any_vector2{this->x / r.x, this->y / r.y};
         }
-         any_vector2 operator*(const any_vector2 &r) const noexcept {
+        any_vector2 operator*(const any_vector2 &r) const noexcept {
             return any_vector2{this->x * r.x, this->y * r.y};
         }
         any_vector2 operator+(const any_vector2 &r) const noexcept {
@@ -498,6 +545,22 @@ class il2cpp {
                 }
             }
             return out;
+        }
+    };
+
+    struct application : object<application> {
+        static std::string get_unity_version() noexcept {
+            return static_call2<il2cpp::string *>("UnityEngine.CoreModule.dll",
+                                                  "UnityEngine", "Application",
+                                                  "get_unityVersion")
+                ->to_string();
+        }
+
+        static std::string get_data_path() noexcept {
+            return static_call2<il2cpp::string *>("UnityEngine.CoreModule.dll",
+                                                  "UnityEngine", "Application",
+                                                  "get_persistentDataPath")
+                ->to_string();
         }
     };
 

@@ -9,6 +9,11 @@ bool tl::il2cpp::init() noexcept {
     }
 
     domain = il2cpp_invoke<void *>("il2cpp_domain_get");
+    if (domain == nullptr) {
+        LOGE("il2cpp_domain_get 返回空");
+        return false;
+    }
+
     il2cpp_invoke<void *>("il2cpp_thread_attach", domain);
 
     return true;

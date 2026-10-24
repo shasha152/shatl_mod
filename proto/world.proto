@@ -1,0 +1,11 @@
+syntax = "proto3";
+
+option optimize_for = LITE_RUNTIME;
+
+package tl.pro;
+
+
+message REQnew_npc {
+  int32 type = 1;
+  int32 target = 2;
+}

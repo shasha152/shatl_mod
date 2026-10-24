@@ -1,0 +1,23 @@
+syntax = "proto3";
+
+option optimize_for = LITE_RUNTIME;
+
+package tl.pro;
+
+message color {
+  int32 r = 1;
+  int32 g = 2;
+  int32 b = 3;
+  int32 a = 4;
+}
+
+
+message REQdraw_object {
+  bool draw_player = 1;
+  bool draw_npc = 2;
+  bool draw_world_item = 3;
+  bool draw_rect = 4;
+  bool draw_line = 5;
+  color line_color = 6;
+  color rect_color = 7;
+}
