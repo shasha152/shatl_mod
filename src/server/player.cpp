@@ -178,7 +178,6 @@ class _set_item_pro : public server_route_caller {
 
         auto &item = value->sitem();
         auto index = value->index();
-        LOGI("%s", item.DebugString().c_str());
         if (index < 0 || index > 59)
             return true;
 

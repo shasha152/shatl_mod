@@ -4,6 +4,7 @@
 #include <array>
 #include <atomic>
 #include <mutex>
+#include <string>
 #include <utility>
 #include <vector>
 
@@ -18,10 +19,16 @@ struct rect {
     ImVec2 end;
 };
 
+struct name {
+    ImVec2 start;
+    std::string name;
+};
+
 namespace detail {
 struct buffer_uint {
     std::vector<line> lines;
     std::vector<rect> rects;
+    std::vector<name> names;
 };
 } // namespace detail
 
@@ -38,30 +45,38 @@ class double_draw_buffer {
         return buffer;
     }
 
-    void write(const line &l) noexcept {
-        if (!can_swap)
+    void write(const line &l) {
+        if (!can_swap.load(std::memory_order_acquire))
             writeble_buffer().lines.push_back(l);
     }
-    void write(const rect &l) noexcept {
-        if (!can_swap)
+    void write(const rect &l) {
+        if (!can_swap.load(std::memory_order_acquire))
             writeble_buffer().rects.push_back(l);
     }
 
-    void finish() noexcept { can_swap = true; }
+    void write(const name &l) {
+        if (!can_swap.load(std::memory_order_acquire))
+            writeble_buffer().names.push_back(l);
+    }
+
+    void finish() noexcept { can_swap.store(true, std::memory_order_release); }
 
     void swap() {
-        if (can_swap) {
-            {
-                std::lock_guard lock(mutex);
-                readble_buffer().lines.clear();
-                readble_buffer().rects.clear();
-                std::swap(buffers[0], buffers[1]);
-            }
-            can_swap = false;
-        }
+        if (!can_swap.load(std::memory_order_acquire))
+            return;
+
+        // std::lock_guard lock(mutex);
+        readble_buffer().lines.clear();
+        readble_buffer().rects.clear();
+        readble_buffer().names.clear();
+        std::swap(buffers[0], buffers[1]);
+
+        can_swap.store(false, std::memory_order_release);
     }
 
     detail::buffer_uint &readble_buffer() noexcept { return buffers[0]; }
+
+  private:
     detail::buffer_uint &writeble_buffer() noexcept { return buffers[1]; }
 };
 

@@ -8,6 +8,7 @@
 #include "shatl/utils/log.h"
 
 namespace tl {
+
 class il2cpp {
     inline static void *domain = nullptr;
     inline static void *handle = nullptr;
@@ -44,6 +45,10 @@ class il2cpp {
     class _class;
 
     class field {
+        inline static constexpr int FIELD_ATTRIBUTE_STATIC = 0x0010;
+        inline static constexpr int FIELD_ATTRIBUTE_INIT_ONLY = 0x0020;
+        inline static constexpr int FIELD_ATTRIBUTE_LITERAL = 0x0040;
+
       public:
         static field *create(const _class *cls, std::string_view name) {
             void *iter = nullptr;
@@ -91,6 +96,32 @@ class il2cpp {
         template <typename T> void static_value(const T &value) const noexcept {
             il2cpp_invoke<void>("il2cpp_field_static_set_value", this, &value);
         }
+
+        bool is_static() const noexcept {
+            auto flags = il2cpp_invoke<int>("il2cpp_field_get_flags", this);
+
+            return (flags & FIELD_ATTRIBUTE_STATIC) != 0;
+        }
+
+        bool is_const() const noexcept {
+            auto flags = il2cpp_invoke<int>("il2cpp_field_get_flags", this);
+
+            return (flags & FIELD_ATTRIBUTE_LITERAL) != 0;
+        }
+
+        bool is_readonly() const noexcept {
+            auto flags = il2cpp_invoke<int>("il2cpp_field_get_flags", this);
+
+            return (flags & FIELD_ATTRIBUTE_INIT_ONLY) != 0;
+        }
+
+        std::string_view type_name() const noexcept {
+            auto type =
+                il2cpp_invoke<const void *>("il2cpp_field_get_type", this);
+            auto name =
+                il2cpp_invoke<const char *>("il2cpp_type_get_name", type);
+            return name ? name : "";
+        }
     };
 
     class method {
@@ -129,7 +160,7 @@ class il2cpp {
                         il2cpp_invoke<void *>("il2cpp_method_get_param", m,
                                               index));
 
-                    if (!(p == "*" || p == real)) {
+                    if (p != "*" && p != real) {
                         match = false;
                         break;
                     }
@@ -222,6 +253,14 @@ class il2cpp {
             return m;
         }
 
+        template <typename Handler>
+        void for_each_field(const Handler &handler) noexcept {
+            void *iter = nullptr;
+            while (field *m = il2cpp_invoke<field *>("il2cpp_class_get_fields",
+                                                     this, &iter))
+                handler(m);
+        }
+
         method *
         mmethod(std::string_view name,
                 std::initializer_list<std::string_view> ps) const noexcept {
@@ -240,8 +279,8 @@ class il2cpp {
             return f;
         }
 
-        template <typename... Args>
-        void *object_new(Args... args) const noexcept {
+        template <typename Ret, typename... Args>
+        Ret object_new(Args... args) const noexcept {
             void *obj = il2cpp_invoke<void *>("il2cpp_object_new", this);
             if (!obj) {
                 LOGI("il2cpp_object_new failed");
@@ -250,10 +289,31 @@ class il2cpp {
             auto m = mmethod(".ctor", sizeof...(Args));
             if (m == nullptr) {
                 LOGI("call .ctor failed");
-                return obj;
+                return static_cast<Ret>(obj);
             }
             m->invoke<void>(obj, args...);
-            return obj;
+            return static_cast<Ret>(obj);
+        }
+
+        template <typename Ret, typename... Args>
+        Ret object_new(method *m, Args... args) const noexcept {
+            void *obj = il2cpp_invoke<void *>("il2cpp_object_new", this);
+            if (!obj) {
+                LOGI("il2cpp_object_new failed");
+                return nullptr;
+            }
+            m->invoke<void>(obj, args...);
+            return static_cast<Ret>(obj);
+        }
+
+        template <typename Ret> Ret object_new_no_init() const noexcept {
+            void *obj = il2cpp_invoke<void *>("il2cpp_object_new", this);
+            if (!obj) {
+                LOGI("il2cpp_object_new failed");
+                return nullptr;
+            }
+
+            return static_cast<Ret>(obj);
         }
     };
 
@@ -264,8 +324,10 @@ class il2cpp {
             auto assemblies = il2cpp_invoke<assembly **>(
                 "il2cpp_domain_get_assemblies", domain, &size);
 
-            if (assemblies == nullptr) [[unlikely]]
+            if (assemblies == nullptr) [[unlikely]] {
+                LOGE("il2cpp_domain_get_assemblies failed");
                 return nullptr;
+            }
 
             for (size_t i = 0; i < size; i++) {
                 auto _assembly = assemblies[i];
@@ -275,7 +337,12 @@ class il2cpp {
                     return _assembly;
             }
 
-            return nullptr;
+            auto as = il2cpp_invoke<assembly *>("il2cpp_domain_assembly_open",
+                                                domain, name.data());
+            if (as == nullptr)
+                LOGW("not found %s assembly", name.data());
+
+            return as;
         }
 
         std::string_view name() const noexcept {
@@ -412,6 +479,10 @@ class il2cpp {
         using reference = T &;
         using const_reference = const T &;
 
+        static array<T> *create(_class *cls, size_t size) noexcept {
+            return il2cpp_invoke<array<T> *>("il2cpp_array_new", cls, size);
+        }
+
         size_t size() const noexcept { return length; }
 
         iterator begin() noexcept { return data; }
@@ -523,6 +594,10 @@ class il2cpp {
 
         static string *create(const char *name) noexcept {
             return il2cpp_invoke<string *>("il2cpp_string_new", name);
+        }
+
+        static string *create(const std::string &str) noexcept {
+            return il2cpp_invoke<string *>("il2cpp_string_new", str.c_str());
         }
 
       private:

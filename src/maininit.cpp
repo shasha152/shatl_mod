@@ -1,6 +1,7 @@
 #include "shatl/funtions/maininit.h"
 #include "shatl/funtions/detail/lang.h"
 #include "shatl/funtions/detail/player.h"
+#include "shatl/funtions/detail/texture2D.h"
 #include "shatl/funtions/detail/utils.h"
 #include "shatl/funtions/detail/world.h"
 
@@ -10,4 +11,5 @@ void tl::func::initialize() noexcept {
     lang::init();
     utils::init();
     npc::init();
+    tex::init();
 }

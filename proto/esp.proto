@@ -20,4 +20,7 @@ message REQdraw_object {
   bool draw_line = 5;
   color line_color = 6;
   color rect_color = 7;
+
+  bool draw_name = 8;
+  color name_color = 9;
 }

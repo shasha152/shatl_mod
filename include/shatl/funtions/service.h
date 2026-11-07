@@ -65,6 +65,10 @@ class server_body {
 
   private:
     void echo_message() noexcept {
+        if (!socket) {
+            LOGW("socket 未初始化");
+            return;
+        }
         packet_msg.set_data(confirm_msg.SerializeAsString());
 
         auto data = packet_msg.SerializeAsString();

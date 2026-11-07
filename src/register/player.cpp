@@ -7,7 +7,7 @@
 namespace tl {
 namespace func {
 
-inline void set_life() {
+void set_life() noexcept {
     // if (pro::)
     static auto &data = config::ins().max_value[pro::max_value_type::life];
 
@@ -20,7 +20,7 @@ inline void set_life() {
     }
 }
 
-inline void set_mana() {
+void set_mana() noexcept {
     static auto &data = config::ins().max_value[pro::max_value_type::mana];
     if (data) {
         auto p = world::local_player();
@@ -31,7 +31,19 @@ inline void set_mana() {
     }
 }
 
-void super_move() {
+void set_damage() noexcept {
+    static auto &data =
+        config::ins().float_value[pro::float_value_type::damage];
+    if (data) {
+        auto p = world::local_player();
+
+        p->set("meleeDamage", data.value);
+        p->set("magicDamage", data.value);
+        p->set("rangedDamage", data.value);
+    }
+}
+
+void super_move() noexcept {
     auto p = world::local_player();
     if (!p)
         return;
@@ -74,9 +86,16 @@ void super_move() {
     }
 }
 
-TL_Register_World_Call(set_life);
-TL_Register_World_Call(set_mana);
-TL_Register_World_Call(super_move);
+void after_reset_effects() noexcept {
+    set_life();
+    set_mana();
+    super_move();
+    set_damage();
+}
+
+// TL_Register_World_Call(set_life);
+// TL_Register_World_Call(set_mana);
+// TL_Register_World_Call(super_move);
 
 } // namespace func
 } // namespace tl

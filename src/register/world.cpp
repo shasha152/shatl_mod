@@ -80,10 +80,12 @@ template <> struct is_use_entity_traits<player> {
 template <typename Entity, typename... Args>
 Entity *get_target_entity(player *me, il2cpp::array<Entity *> *arr,
                           Args &&...args) noexcept {
+
+    constexpr float max_dis = 10000.0f;
     is_use_entity_traits<Entity> entity_traits{};
 
     Entity *target = nullptr;
-    float min_dis = 100000.f;
+    float min_dis = max_dis;
 
     for (auto e : *arr) {
         if (e == nullptr)

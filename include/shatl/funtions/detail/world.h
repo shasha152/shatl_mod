@@ -5,13 +5,16 @@
 #include "npc.h"
 #include "player.h"
 #include "shatl/funtions/config.h"
+#include "shatl/funtions/detail/item.h"
 #include "shatl/funtions/detail/player.h"
 #include "shatl/il2cpp/il2cpp.h"
 #include "shatl/imgui/detail/gui.h"
+#include "shatl/utils/log.h"
 #include <deque>
 #include <dobby.h>
 #include <functional>
 #include <future>
+#include <string>
 
 namespace tl {
 namespace func {
@@ -72,9 +75,13 @@ struct world : il2cpp::object<world> {
             return nullptr;
         return _local_player;
     }
+
+    // static bool ready() noexcept {
+
+    // }
 };
 
-struct world_item : il2cpp::object<world_item> {
+struct world_item : il2cpp::object<world_item>, entity_ex {
 
     static il2cpp::array<world_item *> *world_items() noexcept {
         auto w = world::instance();
@@ -82,6 +89,17 @@ struct world_item : il2cpp::object<world_item> {
             return nullptr;
 
         return w->static_get<il2cpp::array<world_item *> *>("item");
+    }
+
+    bool is_active() noexcept {
+        auto item = get_item();
+        return item && item->stack > 0;
+    }
+
+    item *get_item() noexcept { return get<item *>("inner"); }
+
+    std::string get_name() noexcept {
+        return call<il2cpp::string *>("get_Name")->to_string();
     }
 };
 
@@ -99,52 +117,15 @@ struct ping_map : il2cpp::object<ping_map> {
     // }
 };
 
+namespace detail {
 inline std::vector<std::function<void()>> static_register_function;
 inline std::deque<std::function<void()>> once_function;
 inline std::mutex once_function_mtx;
+} // namespace detail
 
 template <typename Func>
-std::future<std::invoke_result_t<Func>> register_once_function(Func &&func) {
-    using ReturnType = std::invoke_result_t<Func>;
-
-    auto promise = std::make_shared<std::promise<ReturnType>>();
-    auto future = promise->get_future();
-
-    auto task = [func = std::forward<Func>(func), promise]() mutable {
-        try {
-            if constexpr (std::is_void_v<ReturnType>) {
-                std::invoke(std::move(func));
-                promise->set_value();
-            } else {
-                promise->set_value(std::invoke(std::move(func)));
-            }
-        } catch (...) {
-            promise->set_exception(std::current_exception());
-        }
-    };
-    {
-        std::lock_guard lock(once_function_mtx);
-        once_function.emplace_back(std::move(task));
-    }
-
-    return future;
-}
-
-inline void invoke_once_function() noexcept {
-    std::function<void()> func;
-
-    {
-        std::lock_guard lock(once_function_mtx);
-        if (once_function.empty())
-            return;
-
-        func = std::move(once_function.front());
-        once_function.pop_front();
-    }
-
-    func();
-    invoke_once_function();
-}
+std::future<std::invoke_result_t<Func>> register_once_function(Func &&func);
+inline void invoke_once_function() noexcept;
 
 namespace detail {
 inline void double_click_minimap_to_teleport(il2cpp::vector2 pos) noexcept {
@@ -160,7 +141,7 @@ inline void double_click_minimap_to_teleport(il2cpp::vector2 pos) noexcept {
 install_hook_name(world_update, void, void *game_time) {
     world::_local_player =
         world::_main_class->mmethod("get_LocalPlayer")->invoke<player *>();
-    for (auto &func : static_register_function)
+    for (auto &func : detail::static_register_function)
         func();
 
     invoke_once_function();
@@ -210,12 +191,55 @@ inline void world_init() noexcept {
 
 struct __register_function {
     template <typename Func> explicit __register_function(Func &&func) {
-        static_register_function.emplace_back(std::forward<Func>(func));
+        detail::static_register_function.emplace_back(std::forward<Func>(func));
     }
 };
 
 #define TL_Register_World_Call(fun)                                            \
     static ::tl::func::__register_function reg__##fun { fun }
 
+template <typename Func>
+inline std::future<std::invoke_result_t<Func>>
+register_once_function(Func &&func) {
+    using ReturnType = std::invoke_result_t<Func>;
+
+    auto promise = std::make_shared<std::promise<ReturnType>>();
+    auto future = promise->get_future();
+
+    auto task = [func = std::forward<Func>(func), promise]() mutable {
+        try {
+            if constexpr (std::is_void_v<ReturnType>) {
+                std::invoke(std::move(func));
+                promise->set_value();
+            } else {
+                promise->set_value(std::invoke(std::move(func)));
+            }
+        } catch (...) {
+            promise->set_exception(std::current_exception());
+        }
+    };
+    {
+        std::lock_guard lock(detail::once_function_mtx);
+        detail::once_function.emplace_back(std::move(task));
+    }
+
+    return future;
+}
+
+inline void invoke_once_function() noexcept {
+    std::function<void()> func;
+
+    {
+        std::lock_guard lock(detail::once_function_mtx);
+        if (detail::once_function.empty())
+            return;
+
+        func = std::move(detail::once_function.front());
+        detail::once_function.pop_front();
+    }
+
+    func();
+    invoke_once_function();
+}
 } // namespace func
 } // namespace tl

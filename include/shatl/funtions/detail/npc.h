@@ -4,6 +4,7 @@
 #include "shatl/il2cpp/il2cpp.h"
 #include <cstddef>
 #include <cstdint>
+#include <string>
 namespace tl {
 namespace func {
 struct npc_ex {
@@ -172,6 +173,10 @@ struct npc : il2cpp::object<npc>, entity_ex, npc_ex {
     inline static il2cpp::_class *_main_class = nullptr;
 
     bool is_active() noexcept { return life > 0 && timeLeft > 0; }
+
+    std::string get_name() noexcept {
+        return call<il2cpp::string *>("get_FullName")->to_string();
+    }
 
     static void init() noexcept {
         _main_class = il2cpp::assembly::create("Assembly-CSharp.dll")

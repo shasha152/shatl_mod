@@ -30,6 +30,10 @@ void draw_buffer(ImDrawList *draw) noexcept {
         draw->AddRect(line.start, line.end, ImColor(255, 255, 255));
     }
 
+    for (auto &name : double_draw_buffer::ins().readble_buffer().names) {
+        draw->AddText(name.start, ImColor(255, 255, 255), name.name.c_str());
+    }
+
     double_draw_buffer::ins().swap();
 }
 
@@ -121,11 +125,19 @@ void detail::draw_main_gui(int w, int h) noexcept {
             });
         }
 
+        if (ImGui::Button("draw e")) {
+            auto &conf = func::config::ins().draw;
+            conf.set_draw_line(true);
+            conf.set_draw_npc(true);
+            conf.set_draw_rect(true);
+        }
+
         if (is_show_version) {
             ImGui::Text("unity version:%s", unity_version.c_str());
         }
     }
     ImGui::End();
+    draw_buffer(ImGui::GetBackgroundDrawList());
 }
 #else
 void detail::draw_main_gui(int w, int h) noexcept {

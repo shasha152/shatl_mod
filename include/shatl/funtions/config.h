@@ -33,6 +33,8 @@ struct config {
     pro::REQauto_aim auto_aim;
     pro::REQdraw_object draw;
 
+    
+
     static config &ins() noexcept {
         static config c{};
         // LOGI("%zu", c.max_value.size());

@@ -76,8 +76,12 @@ std::error_code socket::read(void *buffer, std::size_t size) noexcept {
     while (total < size) {
         auto data = buffers.subspan(total);
         auto len = ::read(sock, data.data(), data.size_bytes());
-        if (len == -1)
+        if (len == -1) {
+            if (errno == EINTR)
+                continue;
+
             return std::error_code(errno, std::system_category());
+        }
         if (len == 0)
             return std::make_error_code(std::errc::connection_reset);
 
@@ -92,9 +96,13 @@ std::error_code socket::write(void *buffer, std::size_t size) noexcept {
 
     while (total < size) {
         auto data = buffers.subspan(total);
-        auto len = ::write(sock, data.data(), data.size_bytes());
-        if (len == -1)
+        auto len = ::send(sock, data.data(), data.size_bytes(), MSG_NOSIGNAL);
+        if (len == -1) {
+            if (errno == EINTR)
+                continue;
+
             return std::error_code(errno, std::system_category());
+        }
         if (len == 0)
             return std::make_error_code(std::errc::connection_reset);
 
