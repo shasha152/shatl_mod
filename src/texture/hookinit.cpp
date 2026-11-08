@@ -124,8 +124,8 @@ void update_texture_package() noexcept {
 void init() noexcept {
     func::texture2D::init();
     func::texture_assets::init();
-    g_assets.add_path("/灾厄/Content/");
-    g_assets.add_path("/我的世界/Content/");
+    // g_assets.add_path("/灾厄/Content/");
+    // g_assets.add_path("/我的世界/Content/");
 
     update_texture_package();
 }

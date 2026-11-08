@@ -5,118 +5,123 @@ namespace tl {
 namespace func {
 
 struct item_ex {
-    int width;
-    int height;
-    il2cpp::string *_nameOverride;
-    bool questItem;
-    bool flame;
-    bool mech;
-    int tileWand;
-    bool wornArmor;
-    int tooltipContext;
-    char dye;
-    int fishingPole;
-    int bait;
-    short makeNPC;
-    bool expertOnly;
-    bool expert;
-    bool isAShopItem;
-    short hairDye;
-    char paint;
-    char paintCoating;
-    int type;
-    bool favorited;
-    char holdStyle;
-    char useStyle;
-    bool channel;
-    bool accessory;
-    int useAnimation;
-    int useTime;
-    int stack;
-    int maxStack;
-    int pick;
-    int axe;
-    int hammer;
-    int tileBoost;
-    int createTile;
-    int createWall;
-    int placeStyle;
-    int damage;
-    float knockBack;
-    int healLife;
-    int healMana;
-    bool potion;
-    bool consumable;
-    bool autoReuse;
-    bool useTurn;
-    il2cpp::color color;
-    int alpha;
-    short glowMask;
-    float scale;
-    void *UseSound;
-    float useSoundPitch;
-    int defense;
-    int headSlot;
-    int bodySlot;
-    int legSlot;
-    char handOnSlot;
-    char handOffSlot;
-    char backSlot;
-    char frontSlot;
-    char shoeSlot;
-    char waistSlot;
-    char wingSlot;
-    char shieldSlot;
-    char neckSlot;
-    char faceSlot;
-    char balloonSlot;
-    char beardSlot;
-    char voiceSlot;
-    int stringColor;
-    void *ToolTip;
-    il2cpp::string *BestiaryNotes;
-    int rare;
-    void *Variantk__BackingField;
-    int shoot;
-    float shootSpeed;
-    int ammo;
-    bool notAmmo;
-    int useAmmo;
-    int lifeRegen;
-    int manaIncrease;
-    bool buyOnce;
-    int mana;
-    bool noUseGraphic;
-    bool noMelee;
-    int value;
-    bool buy;
-    bool reforge;
-    bool social;
-    bool vanity;
-    bool material;
-    bool noWet;
-    int buffType;
-    int buffTime;
-    int mountType;
-    bool cartTrack;
-    bool uniqueStack;
-    int shopSpecialCurrency;
-    void *shopCustomPrice;
-    bool shootsEveryUse;
-    bool chlorophyteExtractinatorConsumable;
-    bool DD2Summon;
-    int crit;
-    int armorPenetration;
-    int bonusTagDamage;
-    char prefix;
-    bool melee;
-    bool magic;
-    bool ranged;
-    bool summon;
-    bool sentry;
-    int reuseDelay;
-    bool newAndShiny;
-    bool hasVanityEffects;
+    int width;                               // 0x10
+    int height;                              // 0x14
+    il2cpp::string *_nameOverride;           // 0x18
+    bool questItem;                          // 0x20
+    bool flame;                              // 0x21
+    bool mech;                               // 0x22
+    int tileWand;                            // 0x24
+    bool wornArmor;                          // 0x28
+    int tooltipContext;                      // 0x2c
+    int tooltipSlot;                         // 0x30
+    char dye;                                // 0x34
+    int fishingPole;                         // 0x38
+    int bait;                                // 0x3c
+    short makeNPC;                           // 0x40
+    bool expertOnly;                         // 0x42
+    bool expert;                             // 0x43
+    bool isAShopItem;                        // 0x44
+    short hairDye;                           // 0x46
+    char paint;                              // 0x48
+    char paintCoating;                       // 0x49
+    int type;                                // 0x4c
+    bool favorited;                          // 0x50
+    char holdStyle;                          // 0x51
+    char useStyle;                           // 0x52
+    bool channel;                            // 0x53
+    bool accessory;                          // 0x54
+    int useAnimation;                        // 0x58
+    int useTime;                             // 0x5c
+    int stack;                               // 0x60
+    int maxStack;                            // 0x64
+    int pick;                                // 0x68
+    int axe;                                 // 0x6c
+    int hammer;                              // 0x70
+    int tileBoost;                           // 0x74
+    int createTile;                          // 0x78
+    int createWall;                          // 0x7c
+    int placeStyle;                          // 0x80
+    int damage;                              // 0x84
+    float knockBack;                         // 0x88
+    int healLife;                            // 0x8c
+    int healMana;                            // 0x90
+    bool potion;                             // 0x94
+    bool consumable;                         // 0x95
+    bool autoReuse;                          // 0x96
+    bool useTurn;                            // 0x97
+    il2cpp::color color;                     // 0x98
+    int alpha;                               // 0x9c
+    short glowMask;                          // 0xa0
+    float scale;                             // 0xa4
+    void *UseSound;                          // 0xa8
+    float useSoundPitch;                     // 0xb0
+    int defense;                             // 0xb4
+    int headSlot;                            // 0xb8
+    int bodySlot;                            // 0xbc
+    int legSlot;                             // 0xc0
+    char handOnSlot;                         // 0xc4
+    char handOffSlot;                        // 0xc5
+    char backSlot;                           // 0xc6
+    char frontSlot;                          // 0xc7
+    char shoeSlot;                           // 0xc8
+    char waistSlot;                          // 0xc9
+    char wingSlot;                           // 0xca
+    char shieldSlot;                         // 0xcb
+    char neckSlot;                           // 0xcc
+    char faceSlot;                           // 0xcd
+    char balloonSlot;                        // 0xce
+    char beardSlot;                          // 0xcf
+    char voiceSlot;                          // 0xd0
+    int stringColor;                         // 0xd4
+    void *ToolTip;                           // 0xd8
+    void *BestiaryNotes;                     // 0xe0
+    int rare;                                // 0xe8
+    void *Variant;                           // 0xf0
+    int shoot;                               // 0xf8
+    float shootSpeed;                        // 0xfc
+    int ammo;                                // 0x100
+    bool notAmmo;                            // 0x104
+    int useAmmo;                             // 0x108
+    int lifeRegen;                           // 0x10c
+    int manaIncrease;                        // 0x110
+    bool buyOnce;                            // 0x114
+    int mana;                                // 0x118
+    bool noUseGraphic;                       // 0x11c
+    bool noMelee;                            // 0x11d
+    int value;                               // 0x120
+    bool buy;                                // 0x124
+    bool reforge;                            // 0x125
+    bool social;                             // 0x126
+    bool vanity;                             // 0x127
+    bool material;                           // 0x128
+    bool noWet;                              // 0x129
+    int buffType;                            // 0x12c
+    int buffTime;                            // 0x130
+    int mountType;                           // 0x134
+    bool cartTrack;                          // 0x138
+    bool uniqueStack;                        // 0x139
+    int shopSpecialCurrency;                 // 0x13c
+    void *shopCustomPrice;                   // 0x140
+    bool shootsEveryUse;                     // 0x148
+    bool chlorophyteExtractinatorConsumable; // 0x149
+    bool DD2Summon;                          // 0x14a
+    int crit;                                // 0x14c
+    int armorPenetration;                    // 0x150
+    int bonusTagDamage;                      // 0x154
+    char prefix;                             // 0x158
+    bool melee;                              // 0x159
+    bool magic;                              // 0x15a
+    bool ranged;                             // 0x15b
+    bool summon;                             // 0x15c
+    bool sentry;                             // 0x15d
+    int reuseDelay;                          // 0x160
+    bool newAndShiny;                        // 0x164
+    bool hasVanityEffects;                   // 0x165
+    il2cpp::string *_affixName;              // 0x168
+    int _affixType;                          // 0x170
+    char _affixPrefix;                       // 0x174
+    int _affixLang;                          // 0x178
 };
 
 struct item : il2cpp::object<item>, item_ex {

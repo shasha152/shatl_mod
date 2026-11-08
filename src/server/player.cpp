@@ -2,8 +2,7 @@
 #include "setting.pb.h"
 #include "shatl/funtions/detail/lang.h"
 #include "shatl/funtions/detail/world.h"
-#include "shatl/funtions/service.h"
-#include "shatl/utils/freeze.h"
+#include "shatl/funtions/webservice.h"
 #include "shatl/utils/log.h"
 
 namespace tl {
@@ -37,31 +36,11 @@ class _float_value_setting : public server_route_caller {
                 return true;
 
             auto &fv = config::ins().float_value[type];
-            if (type == pro::speed) {
-                local_player_speed(value->value(), value->is_open());
-            } else {
-                fv.value = value->value();
-                fv.is_enable = value->is_open();
-            }
+
+            fv.value = value->value();
+            fv.is_enable = value->is_open();
         }
         return true;
-    }
-
-  private:
-    void local_player_speed(float value, bool enable) {
-        if (enable) {
-            utils::g_freeze_worker.set(
-                [value]() {
-                    auto p = world::local_player();
-                    if (p == nullptr) [[unlikely]]
-                        return;
-
-                    p->set("moveSpeed", value);
-                },
-                utils::ft::speed);
-        } else {
-            utils::g_freeze_worker.clear(utils::ft::speed);
-        }
     }
 };
 
@@ -212,7 +191,7 @@ TL_Register_Router(_set_item_pro, pro::cmd_set_item_pro);
 class _get_item_names : public server_route_caller {
     bool handle(pro::confirm &confirm) noexcept override {
         pro::RESitem_names res;
-        auto localized_texts = lang::get_item_localized_texts();
+        auto localized_texts = lang::item_localized_texts();
         if (localized_texts != nullptr) {
             for (auto text : *localized_texts) {
                 if (text == nullptr || text->value == nullptr) [[unlikely]]

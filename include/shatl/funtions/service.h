@@ -1,5 +1,6 @@
 #pragma once
 
+#if 0
 #include "packet.pb.h"
 
 #include "shatl/network/server.h"
@@ -127,3 +128,5 @@ template <typename Caller> struct __register_router {
 using service = net::basic_server<server_body>;
 } // namespace func
 } // namespace tl
+
+#endif

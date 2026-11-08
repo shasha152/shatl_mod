@@ -7,7 +7,6 @@
 #include "shatl/funtions/detail/player.h"
 #include "shatl/funtions/detail/utils.h"
 #include "shatl/il2cpp/il2cpp.h"
-#include "shatl/utils/log.h"
 #include <utility>
 
 namespace tl {
@@ -66,7 +65,8 @@ template <typename Entity> struct is_use_entity_traits {};
 
 template <> struct is_use_entity_traits<npc> {
     bool operator()(npc *obj, bool is_attack_friendly) noexcept {
-        return obj->life <= 0 || (is_attack_friendly == false && obj->friendly);
+        return obj->get<int>("life") <= 0 ||
+               (is_attack_friendly == false && obj->get<bool>("friendly"));
     }
 };
 

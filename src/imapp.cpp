@@ -74,7 +74,7 @@ void detail::draw_main_gui(int w, int h) noexcept {
             }
         }
         if (ImGui::Button("item name")) {
-            auto arr = func::lang::get_item_localized_texts();
+            auto arr = func::lang::item_localized_texts();
             if (arr != nullptr) {
                 for (auto txt : *arr) {
                     if (txt == nullptr || txt->value == nullptr) [[unlikely]]

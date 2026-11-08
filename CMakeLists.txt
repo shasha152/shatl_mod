@@ -15,6 +15,7 @@ set(protobuf_BUILD_LIBUPB OFF CACHE BOOL "" FORCE)
 
 add_subdirectory(third-party/imgui)
 add_subdirectory(third-party/xdl)
+add_subdirectory(third-party/IXWebSocket)
 add_subdirectory(third-party/protobuf EXCLUDE_FROM_ALL)
 
 set(PROTO_DIR ${CMAKE_CURRENT_SOURCE_DIR}/proto)
@@ -82,6 +83,7 @@ target_link_libraries(shatl PRIVATE
   ${CMAKE_SOURCE_DIR}/third-party/dobby/arm64-v8a/libdobby.a
   imgui EGL GLESv3
   xdl protobuf::libprotobuf-lite
+  ixwebsocket::ixwebsocket
 )
 
 target_include_directories(shatl PRIVATE

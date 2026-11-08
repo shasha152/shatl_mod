@@ -1,5 +1,6 @@
 #include "shatl/funtions/maininit.h"
 #include "shatl/funtions/service.h"
+#include "shatl/funtions/webservice.h"
 #include "shatl/il2cpp/il2cpp.h"
 #include "shatl/imgui/initialize.h"
 #include "shatl/utils/log.h"
@@ -19,9 +20,7 @@ void hook_thread() noexcept {
 
     tl::func::initialize();
 
-    LOGI("服务初始化");
-    tl::func::service service(39520);
-    LOGI("服务启动");
+    static tl::func::websocket_server service(39520);
     service.run();
 }
 

@@ -23,6 +23,7 @@ enum pk_cmd {
   cmd_auto_aim = 1300;
   cmd_draw_object = 1301;
   cmd_new_npc = 1302;
+  cmd_get_npc_name = 1303;
 }
 
 message packet {
