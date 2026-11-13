@@ -1,5 +1,5 @@
-#include "shatl/funtions/detail/texture2D.h"
-#include "shatl/funtions/detail/world.h"
+#include "shatl/funtions/detail/class/texture2D.h"
+#include "shatl/funtions/detail/class/world.h"
 #include "shatl/il2cpp/il2cpp.h"
 #include "shatl/utils/log.h"
 

@@ -1,11 +1,12 @@
-#include "shatl/funtions/detail/world.h"
+#include "shatl/funtions/detail/class/world.h"
+#include "setting.pb.h"
 #include "shatl/detail/counter.inc.h"
 #include "shatl/funtions/config.h"
-#include "shatl/funtions/detail/entity.h"
-#include "shatl/funtions/detail/localuser_game_state.h"
-#include "shatl/funtions/detail/npc.h"
-#include "shatl/funtions/detail/player.h"
-#include "shatl/funtions/detail/utils.h"
+#include "shatl/funtions/detail/class/entity.h"
+#include "shatl/funtions/detail/class/localuser_game_state.h"
+#include "shatl/funtions/detail/class/npc.h"
+#include "shatl/funtions/detail/class/player.h"
+#include "shatl/funtions/detail/class/utils.h"
 #include "shatl/il2cpp/il2cpp.h"
 #include <utility>
 
@@ -105,30 +106,44 @@ Entity *get_target_entity(player *me, il2cpp::array<Entity *> *arr,
 
 void auto_aim() noexcept {
     auto &cfg = config::ins().auto_aim;
-    if (cfg.is_open()) {
-        auto p = world::local_player();
-        if (p == nullptr) [[unlikely]]
-            return;
+    if (cfg.is_open())
+        return;
+    auto p = world::local_player();
+    if (p == nullptr) [[unlikely]]
+        return;
 
-        if (cfg.npc()) {
-            auto npcs = world::npcs();
-            auto target =
-                npcs ? get_target_entity(p, npcs, cfg.is_attack_friendly())
-                     : nullptr;
-            if (target)
-                aim_target(p, reinterpret_cast<entity *>(target));
-        }
+    if (cfg.npc()) {
+        auto npcs = world::npcs();
+        auto target = npcs
+                          ? get_target_entity(p, npcs, cfg.is_attack_friendly())
+                          : nullptr;
+        aim_target(p, reinterpret_cast<entity *>(target));
+    }
 
-        if (cfg.player()) {
-            auto players = world::players();
-            auto target = players ? get_target_entity(p, players, p) : nullptr;
-            if (target)
-                aim_target(p, reinterpret_cast<entity *>(target));
-        }
+    if (cfg.player()) {
+        auto players = world::players();
+        auto target = players ? get_target_entity(p, players, p) : nullptr;
+        aim_target(p, reinterpret_cast<entity *>(target));
     }
 }
 
 TL_Register_World_Call(auto_aim);
+
+void super_npc_spawn_rate() {
+    static auto ms = npc::_main_class->mfield("maxSpawns");
+    static auto sr = npc::_main_class->mfield("spawnRate");
+    static auto df_sr = npc::_main_class->mfield("defaultSpawnRate");
+    static auto df_ms = npc::_main_class->mfield("defaultMaxSpawns");
+
+    if (config::ins().bool_value[pro::npc_spawn_rate]) {
+        ms->static_value(200);
+        sr->static_value(1);
+        df_ms->static_value(200);
+        df_sr->static_value(1);
+    }
+}
+
+TL_Register_World_Call(super_npc_spawn_rate);
 
 } // namespace func
 } // namespace tl

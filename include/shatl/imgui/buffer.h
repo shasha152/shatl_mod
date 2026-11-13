@@ -35,7 +35,6 @@ struct buffer_uint {
 class double_draw_buffer {
     std::array<detail::buffer_uint, 2> buffers;
     std::atomic_bool can_swap;
-    mutable std::mutex mutex;
 
     double_draw_buffer() noexcept : can_swap(false) {}
 
@@ -66,15 +65,15 @@ class double_draw_buffer {
             return;
 
         // std::lock_guard lock(mutex);
-        readble_buffer().lines.clear();
-        readble_buffer().rects.clear();
-        readble_buffer().names.clear();
+        readable_buffer().lines.clear();
+        readable_buffer().rects.clear();
+        readable_buffer().names.clear();
         std::swap(buffers[0], buffers[1]);
 
         can_swap.store(false, std::memory_order_release);
     }
 
-    detail::buffer_uint &readble_buffer() noexcept { return buffers[0]; }
+    detail::buffer_uint &readable_buffer() noexcept { return buffers[0]; }
 
   private:
     detail::buffer_uint &writeble_buffer() noexcept { return buffers[1]; }

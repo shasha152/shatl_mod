@@ -154,9 +154,10 @@ template <typename Caller> struct __register_router {
                                std::string_view debug_class_name) noexcept {
         auto [_, inserted] = websocket_server::routes.emplace(
             cmd, []() { return std::make_unique<Caller>(); });
-
+#if 0
         LOGI("register router cmd=%d inserted=%d class=%s",
              static_cast<int>(cmd), inserted, debug_class_name.data());
+#endif
     }
 };
 #define TL_Register_Router(caller, cmd)                                        \

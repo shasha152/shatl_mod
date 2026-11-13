@@ -173,7 +173,8 @@ struct npc : il2cpp::object<npc>, entity_ex, npc_ex {
     inline static il2cpp::_class *_main_class = nullptr;
 
     bool is_active() noexcept {
-        return get<int>("life") > 0 && get<int>("timeLeft") > 0;
+        return get<int>("life") > 0 && get<int>("timeLeft") > 0 &&
+               get<bool>("active");
     }
 
     std::string get_name() noexcept {

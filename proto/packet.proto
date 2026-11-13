@@ -19,6 +19,7 @@ enum pk_cmd {
   cmd_set_item_pro = 1103;
 
   cmd_grab_world_item = 1200;
+  cmd_map_reveal = 1201;
 
   cmd_auto_aim = 1300;
   cmd_draw_object = 1301;

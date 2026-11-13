@@ -5,16 +5,12 @@
 #include "npc.h"
 #include "player.h"
 #include "shatl/funtions/config.h"
-#include "shatl/funtions/detail/item.h"
-#include "shatl/funtions/detail/player.h"
+#include "shatl/funtions/detail/register.h"
 #include "shatl/il2cpp/il2cpp.h"
 #include "shatl/imgui/detail/gui.h"
-#include "shatl/utils/log.h"
-#include <deque>
 #include <dobby.h>
-#include <functional>
-#include <future>
 #include <string>
+
 
 namespace tl {
 namespace func {
@@ -118,16 +114,6 @@ struct ping_map : il2cpp::object<ping_map> {
 };
 
 namespace detail {
-inline std::vector<std::function<void()>> static_register_function;
-inline std::deque<std::function<void()>> once_function;
-inline std::mutex once_function_mtx;
-} // namespace detail
-
-template <typename Func>
-std::future<std::invoke_result_t<Func>> register_once_function(Func &&func);
-inline void invoke_once_function() noexcept;
-
-namespace detail {
 inline void double_click_minimap_to_teleport(il2cpp::vector2 pos) noexcept {
     auto p = world::local_player();
     if (p == nullptr) [[unlikely]]
@@ -138,7 +124,7 @@ inline void double_click_minimap_to_teleport(il2cpp::vector2 pos) noexcept {
 
 } // namespace detail
 
-install_hook_name(world_update, void, void *game_time) {
+install_hook_name(world_update, void, void *self, void *game_time) {
     world::_local_player =
         world::_main_class->mmethod("get_LocalPlayer")->invoke<player *>();
     for (auto &func : detail::static_register_function)
@@ -146,7 +132,7 @@ install_hook_name(world_update, void, void *game_time) {
 
     invoke_once_function();
 
-    return orig_world_update(game_time);
+    return orig_world_update(self, game_time);
 }
 
 install_hook_name(PingMapAdd, void, ping_map *map, il2cpp::vector2 pos) {
@@ -174,8 +160,8 @@ inline void world_init() noexcept {
         LOGE("取 Main.instance 失败，跳过钩子安装");
         return;
     }
-
-    auto update = w->get_method("Update", 1);
+    // DoUpdate(Microsoft.Xna.Framework.GameTime gameTime)
+    auto update = w->get_method("DoUpdate", 1);
     if (update != nullptr)
         install_hook_world_update(update->get());
     else
@@ -189,57 +175,5 @@ inline void world_init() noexcept {
         LOGE("未找到 Pings.Add，双击传送不可用");
 }
 
-struct __register_function {
-    template <typename Func> explicit __register_function(Func &&func) {
-        detail::static_register_function.emplace_back(std::forward<Func>(func));
-    }
-};
-
-#define TL_Register_World_Call(fun)                                            \
-    static ::tl::func::__register_function reg__##fun { fun }
-
-template <typename Func>
-inline std::future<std::invoke_result_t<Func>>
-register_once_function(Func &&func) {
-    using ReturnType = std::invoke_result_t<Func>;
-
-    auto promise = std::make_shared<std::promise<ReturnType>>();
-    auto future = promise->get_future();
-
-    auto task = [func = std::forward<Func>(func), promise]() mutable {
-        try {
-            if constexpr (std::is_void_v<ReturnType>) {
-                std::invoke(std::move(func));
-                promise->set_value();
-            } else {
-                promise->set_value(std::invoke(std::move(func)));
-            }
-        } catch (...) {
-            promise->set_exception(std::current_exception());
-        }
-    };
-    {
-        std::lock_guard lock(detail::once_function_mtx);
-        detail::once_function.emplace_back(std::move(task));
-    }
-
-    return future;
-}
-
-inline void invoke_once_function() noexcept {
-    std::function<void()> func;
-
-    {
-        std::lock_guard lock(detail::once_function_mtx);
-        if (detail::once_function.empty())
-            return;
-
-        func = std::move(detail::once_function.front());
-        detail::once_function.pop_front();
-    }
-
-    func();
-    invoke_once_function();
-}
 } // namespace func
 } // namespace tl

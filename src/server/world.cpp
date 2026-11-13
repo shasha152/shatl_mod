@@ -1,8 +1,10 @@
-#include "shatl/funtions/detail/world.h"
+#include "shatl/funtions/detail/class/world.h"
 #include "packet.pb.h"
 #include "shatl/funtions/config.h"
+#include "shatl/funtions/detail/map_reveal.h"
 #include "shatl/funtions/webservice.h"
 #include "shatl/utils/log.h"
+#include <memory>
 
 namespace tl {
 namespace func {
@@ -47,14 +49,32 @@ TL_Register_Router(_auto_aim_entity, pro::cmd_auto_aim);
 class _draw_object : public server_route_caller {
     bool handle() noexcept override {
         auto value = as<pro::REQdraw_object>();
-        if (value) [[likely]] {
-            config::ins().draw.CopyFrom(value.value());
-        }
+        if (!value)
+            return false;
+
+        config::ins().draw.CopyFrom(value.value());
         return true;
     }
 };
 
 TL_Register_Router(_draw_object, pro::cmd_draw_object);
+
+class _map_reveal : public server_route_caller {
+    std::shared_ptr<map_reveal> m;
+
+  public:
+    _map_reveal() noexcept : m(std::make_shared<map_reveal>()) {}
+
+    bool handle() noexcept override {
+        if (m->is_run())
+            return false;
+
+        m->run();
+        return true;
+    }
+};
+
+TL_Register_Router(_map_reveal, pro::cmd_map_reveal);
 
 } // namespace func
 } // namespace tl

@@ -22,6 +22,7 @@ enum bool_value_type {
   light_color = 0;
   double_click_teleport = 1;
   noclip = 2;
+  npc_spawn_rate = 3;
 }
 
 message REQbool_value {

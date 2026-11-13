@@ -1,6 +1,6 @@
 #include "shatl/funtions/config.h"
-#include "shatl/funtions/detail/localuser_game_state.h"
-#include "shatl/funtions/detail/world.h"
+#include "shatl/funtions/detail/class/localuser_game_state.h"
+#include "shatl/funtions/detail/class/world.h"
 #include "shatl/il2cpp/il2cpp.h"
 #include "shatl/imgui/detail/gui.h"
 
@@ -10,37 +10,38 @@ namespace func {
 void set_life() noexcept {
     // if (pro::)
     static auto &data = config::ins().max_value[pro::max_value_type::life];
+    if (!data)
+        return;
 
-    if (data) {
-        auto p = world::local_player();
-        if (p) {
-            p->set("statLife", data.value);
-            p->set("statLifeMax", data.max);
-        }
+    auto p = world::local_player();
+    if (p) {
+        p->set("statLife", data.value);
+        p->set("statLifeMax", data.max);
     }
 }
 
 void set_mana() noexcept {
     static auto &data = config::ins().max_value[pro::max_value_type::mana];
-    if (data) {
-        auto p = world::local_player();
-        if (p) {
-            p->set("statMana", data.value);
-            p->set("statManaMax", data.max);
-        }
+    if (!data)
+        return;
+
+    auto p = world::local_player();
+    if (p) {
+        p->set("statMana", data.value);
+        p->set("statManaMax", data.max);
     }
 }
 
 void set_damage() noexcept {
     static auto &data =
         config::ins().float_value[pro::float_value_type::damage];
-    if (data) {
-        auto p = world::local_player();
+    if (data)
+        return;
+    auto p = world::local_player();
 
-        p->set("meleeDamage", data.value);
-        p->set("magicDamage", data.value);
-        p->set("rangedDamage", data.value);
-    }
+    p->set("meleeDamage", data.value);
+    p->set("magicDamage", data.value);
+    p->set("rangedDamage", data.value);
 }
 
 void super_move() noexcept {
@@ -84,6 +85,7 @@ void super_move() noexcept {
             50;
         p->velocity = pos * speed / 10;
     }
+    p->set("maxFallSpeed", 99999.0f);
 }
 
 void after_reset_effects() noexcept {
@@ -93,9 +95,6 @@ void after_reset_effects() noexcept {
     set_damage();
 }
 
-// TL_Register_World_Call(set_life);
-// TL_Register_World_Call(set_mana);
-// TL_Register_World_Call(super_move);
 
 } // namespace func
 } // namespace tl

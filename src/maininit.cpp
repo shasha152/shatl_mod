@@ -1,9 +1,9 @@
 #include "shatl/funtions/maininit.h"
-#include "shatl/funtions/detail/lang.h"
-#include "shatl/funtions/detail/player.h"
-#include "shatl/funtions/detail/texture2D.h"
-#include "shatl/funtions/detail/utils.h"
-#include "shatl/funtions/detail/world.h"
+#include "shatl/funtions/detail/class/lang.h"
+#include "shatl/funtions/detail/class/player.h"
+#include "shatl/funtions/detail/class/texture2D.h"
+#include "shatl/funtions/detail/class/utils.h"
+#include "shatl/funtions/detail/class/world.h"
 
 void tl::func::initialize() noexcept {
     world_init();

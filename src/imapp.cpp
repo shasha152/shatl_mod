@@ -5,13 +5,15 @@
 #include <backends/imgui_impl_android.h>
 #include <backends/imgui_impl_opengl3.h>
 #include <imgui.h>
+#include <memory>
 #include <string>
 
 #if IS_ENABLE_DEBUG_GUI
 #include "shatl/funtions/config.h"
-#include "shatl/funtions/detail/lang.h"
-#include "shatl/funtions/detail/player.h"
-#include "shatl/funtions/detail/world.h"
+#include "shatl/funtions/detail/class/lang.h"
+#include "shatl/funtions/detail/class/player.h"
+#include "shatl/funtions/detail/class/world.h"
+#include "shatl/funtions/detail/map_reveal.h"
 #include "shatl/il2cpp/il2cpp.h"
 #endif
 
@@ -22,17 +24,14 @@ inline int width = 0;
 inline int height = 0;
 
 void draw_buffer(ImDrawList *draw) noexcept {
-    for (auto &line : double_draw_buffer::ins().readble_buffer().lines) {
+    auto &readable = double_draw_buffer::ins().readable_buffer();
+
+    for (auto &line : readable.lines)
         draw->AddLine(line.start, line.end, ImColor(255, 255, 255));
-    }
-
-    for (auto &line : double_draw_buffer::ins().readble_buffer().rects) {
+    for (auto &line : readable.rects)
         draw->AddRect(line.start, line.end, ImColor(255, 255, 255));
-    }
-
-    for (auto &name : double_draw_buffer::ins().readble_buffer().names) {
+    for (auto &name : readable.names)
         draw->AddText(name.start, ImColor(255, 255, 255), name.name.c_str());
-    }
 
     double_draw_buffer::ins().swap();
 }
@@ -130,6 +129,11 @@ void detail::draw_main_gui(int w, int h) noexcept {
             conf.set_draw_line(true);
             conf.set_draw_npc(true);
             conf.set_draw_rect(true);
+        }
+
+        if (ImGui::Button("map reveal")) {
+            static auto map = std::make_shared<func::map_reveal>();
+            map->run();
         }
 
         if (is_show_version) {

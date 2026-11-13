@@ -119,7 +119,7 @@ bool initialize_imgui(float w, float h) noexcept {
     ImGui::StyleColorsLight();
 
     ImGuiStyle &style = ImGui::GetStyle();
-    style.ScaleAllSizes(3);
+    style.ScaleAllSizes(5);
 
     return true;
 }

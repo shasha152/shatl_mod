@@ -375,9 +375,9 @@ class il2cpp {
                 return T{};
             }
 
-            auto f = klass->mfield(name);
+            auto f = get_field(name);
             if (f)
-                return f->value<T>(this);
+                return f->template value<T>(this);
             LOGW("not found %s", name.data());
             return T{};
         }
@@ -388,9 +388,9 @@ class il2cpp {
                 return;
             }
 
-            auto f = klass->mfield(name);
+            auto f = get_field(name);
             if (f)
-                return f->value<T>(this, value);
+                return f->template value<T>(this, value);
             LOGW("not found %s", name.data());
         }
 
@@ -398,8 +398,8 @@ class il2cpp {
             if (klass == nullptr) [[unlikely]]
                 return T{};
 
-            auto f = klass->mfield(name);
-            return f ? f->static_value<T>() : T{};
+            auto f = get_field(name);
+            return f ? f->template static_value<T>() : T{};
         }
 
         template <typename T>
@@ -407,9 +407,9 @@ class il2cpp {
             if (klass == nullptr) [[unlikely]]
                 return;
 
-            auto f = klass->mfield(name);
+            auto f = get_field(name);
             if (f)
-                f->static_value<T>(value);
+                f->template static_value<T>(value);
         }
 
         template <typename Ret, typename... Args>
@@ -444,14 +444,9 @@ class il2cpp {
             return it->second->template invoke<Ret>(args...);
         }
 
-        method *get_method(std::string_view name, int args_num) noexcept {
-            if (klass == nullptr) [[unlikely]] {
-                LOGW("对象类型未知，找不到方法 %s", name.data());
-                return nullptr;
-            }
-
+        method *get_method(std::string_view name, int args_num) const noexcept {
             auto it = methods.find(name);
-            if (it == methods.end() || it->second == nullptr) {
+            if (it == methods.end()) {
                 auto m = klass->mmethod(name, args_num);
                 if (m == nullptr)
                     return nullptr;
@@ -462,8 +457,22 @@ class il2cpp {
             return it->second;
         }
 
+        field *get_field(std::string_view name) const noexcept {
+            auto it = fields.find(name);
+            if (it == fields.end()) {
+                auto m = klass->mfield(name);
+                if (m == nullptr)
+                    return nullptr;
+
+                it = fields.insert_or_assign(name, m).first;
+            }
+
+            return it->second;
+        }
+
       private:
         inline static std::unordered_map<std::string_view, method *> methods{};
+        inline static std::unordered_map<std::string_view, field *> fields{};
     };
 
     template <typename T> class array : public object<> {

@@ -1,8 +1,8 @@
 #include "imgui.h"
 #include "shatl/funtions/config.h"
-#include "shatl/funtions/detail/entity.h"
-#include "shatl/funtions/detail/utils.h"
-#include "shatl/funtions/detail/world.h"
+#include "shatl/funtions/detail/class/entity.h"
+#include "shatl/funtions/detail/class/utils.h"
+#include "shatl/funtions/detail/class/world.h"
 #include "shatl/il2cpp/il2cpp.h"
 #include "shatl/imgui/buffer.h"
 #include "shatl/utils/log.h"
@@ -10,7 +10,8 @@
 namespace tl {
 namespace func {
 
-void draw_entity(entity *e, bool draw_line, bool draw_rect, std::string name) {
+void draw_entity(entity *e, bool draw_line, bool draw_rect,
+                 std::string name = "") {
     auto left_top = e->position;
     auto screen_left_top =
         world::to_real_screen(utils::to_screen_position(left_top));
@@ -52,7 +53,8 @@ void draw_arr_entity(il2cpp::array<Entity *> *arr) noexcept {
         if (e && e->is_active())
             draw_entity(reinterpret_cast<entity *>(e),
                         config::ins().draw.draw_line(),
-                        config::ins().draw.draw_rect(), e->get_name());
+                        config::ins().draw.draw_rect()
+                        /*,e->get_name()*/);
     }
 }
 

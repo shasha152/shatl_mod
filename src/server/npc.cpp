@@ -1,7 +1,7 @@
-#include "shatl/funtions/detail/npc.h"
+#include "shatl/funtions/detail/class/npc.h"
 #include "packet.pb.h"
-#include "shatl/funtions/detail/lang.h"
-#include "shatl/funtions/detail/world.h"
+#include "shatl/funtions/detail/class/lang.h"
+#include "shatl/funtions/detail/class/world.h"
 #include "shatl/funtions/webservice.h"
 #include "shatl/il2cpp/il2cpp.h"
 #include "world.pb.h"
@@ -10,13 +10,13 @@ namespace tl {
 namespace func {
 class _new_npc : public server_route_caller {
     bool handle() noexcept override {
-        func::register_once_function([msg = as<pro::REQnew_npc>()]() {
+        auto call = [msg = as<pro::REQnew_npc>()]() {
             auto player = world::local_player();
             auto pos =
                 il2cpp::vector2(player->position.x, player->position.y - 50);
             npc::spawn(pos, msg->type(), msg->target());
-        });
-
+        };
+        func::register_once_function(call);
         return true;
     }
 };
@@ -27,14 +27,15 @@ class _get_npc_name : public server_route_caller {
     bool handle(pro::confirm &confirm) noexcept override {
         pro::RESitem_names res;
         auto localized_texts = lang::npc_localized_texts();
-        if (localized_texts != nullptr) {
-            for (auto text : *localized_texts) {
-                if (text == nullptr || text->value == nullptr) [[unlikely]]
-                    continue;
+        if (localized_texts == nullptr)
+            return false;
 
-                auto name = res.add_names();
-                *name = text->value->to_string();
-            }
+        for (auto text : *localized_texts) {
+            if (text == nullptr || text->value == nullptr) [[unlikely]]
+                continue;
+
+            auto name = res.add_names();
+            *name = text->value->to_string();
         }
 
         confirm.set_ok(true);
