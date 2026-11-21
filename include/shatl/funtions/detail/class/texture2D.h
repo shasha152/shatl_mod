@@ -2,8 +2,10 @@
 
 #include "shatl/detail/counter.inc.h"
 #include "shatl/il2cpp/il2cpp.h"
+#include "shatl/utils/log.h"
 #include <cstring>
 #include <fstream>
+#include <ios>
 #include <iterator>
 #include <string>
 #include <string_view>
@@ -47,12 +49,13 @@ struct texture2D : public il2cpp::object<texture2D> {
                     ctor, 2, 2);
         if (!load->invoke<bool>(unity_tex, read_data(source_asset), false))
             return nullptr;
-        unity_class->parent()
-            ->mmethod("set_filterMode")
-            ->invoke<void>(unity_tex, 0);
-        unity_class->parent()
-            ->mmethod("set_wrapMode")
-            ->invoke<void>(unity_tex, 1);
+        static auto set_filterMode =
+            unity_class->parent()->mmethod("set_filterMode");
+        static auto set_wrapMode =
+            unity_class->parent()->mmethod("set_wrapMode");
+
+        set_filterMode->invoke<void>(unity_tex, 0);
+        set_wrapMode->invoke<void>(unity_tex, 1);
 
         auto obj = _main_class->object_new<texture2D *>(m, unity_tex);
         return obj;
@@ -69,6 +72,7 @@ struct texture2D : public il2cpp::object<texture2D> {
         data.assign(std::istreambuf_iterator<char>(stream.rdbuf()),
                     std::istreambuf_iterator<char>());
         auto bytes = il2cpp::array<char>::create(byte_class, data.size());
+        LOGI("%lu", data.size());
         std::memcpy(bytes->begin(), data.data(), data.size());
 
         return bytes;

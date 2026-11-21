@@ -148,7 +148,8 @@ class il2cpp {
                 int count =
                     il2cpp_invoke<int>("il2cpp_method_get_param_count", m);
 
-                if (name != m->name() || ps.size() != count)
+                if (name != m->name() ||
+                    ps.size() != static_cast<std::size_t>(count))
                     continue;
 
                 bool match = true;
@@ -370,46 +371,24 @@ class il2cpp {
         void *monitor;
 
         template <typename T> T get(std::string_view name) const {
-            if (klass == nullptr) [[unlikely]] {
-                LOGW("对象类型未知，读字段 %s 失败", name.data());
-                return T{};
-            }
-
             auto f = get_field(name);
-            if (f)
-                return f->template value<T>(this);
-            LOGW("not found %s", name.data());
-            return T{};
+            return f->template value<T>(this);
         }
 
         template <typename T> void set(std::string_view name, const T &value) {
-            if (klass == nullptr) [[unlikely]] {
-                LOGW("对象类型未知，写字段 %s 失败", name.data());
-                return;
-            }
-
             auto f = get_field(name);
-            if (f)
-                return f->template value<T>(this, value);
-            LOGW("not found %s", name.data());
+            return f->template value<T>(this, value);
         }
 
         template <typename T> T static_get(std::string_view name) const {
-            if (klass == nullptr) [[unlikely]]
-                return T{};
-
             auto f = get_field(name);
-            return f ? f->template static_value<T>() : T{};
+            return f->template static_value<T>();
         }
 
         template <typename T>
         void static_set(std::string_view name, const T &value) {
-            if (klass == nullptr) [[unlikely]]
-                return;
-
             auto f = get_field(name);
-            if (f)
-                f->template static_value<T>(value);
+            f->template static_value<T>(value);
         }
 
         template <typename Ret, typename... Args>

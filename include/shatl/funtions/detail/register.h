@@ -3,6 +3,7 @@
 #include <deque>
 #include <functional>
 #include <future>
+#include <type_traits>
 namespace tl {
 namespace func {
 namespace detail {
@@ -12,7 +13,8 @@ inline std::mutex once_function_mtx;
 } // namespace detail
 
 template <typename Func>
-std::future<std::invoke_result_t<Func>> register_once_function(Func &&func);
+std::future<std::invoke_result_t<Func>>
+register_once_function(Func &&func) noexcept;
 inline void invoke_once_function() noexcept;
 
 struct __register_function {
@@ -26,22 +28,31 @@ struct __register_function {
 
 template <typename Func>
 inline std::future<std::invoke_result_t<Func>>
-register_once_function(Func &&func) {
+register_once_function(Func &&func) noexcept {
     using ReturnType = std::invoke_result_t<Func>;
 
     auto promise = std::make_shared<std::promise<ReturnType>>();
     auto future = promise->get_future();
 
     auto task = [func = std::forward<Func>(func), promise]() mutable {
-        try {
+        if constexpr (std::is_nothrow_invocable<std::decay_t<Func>>::value) {
             if constexpr (std::is_void_v<ReturnType>) {
                 std::invoke(std::move(func));
                 promise->set_value();
             } else {
                 promise->set_value(std::invoke(std::move(func)));
             }
-        } catch (...) {
-            promise->set_exception(std::current_exception());
+        } else {
+            try {
+                if constexpr (std::is_void_v<ReturnType>) {
+                    std::invoke(std::move(func));
+                    promise->set_value();
+                } else {
+                    promise->set_value(std::invoke(std::move(func)));
+                }
+            } catch (...) {
+                promise->set_exception(std::current_exception());
+            }
         }
     };
     {

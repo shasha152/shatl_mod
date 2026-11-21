@@ -8,8 +8,7 @@ namespace tl {
 namespace func {
 
 void set_life() noexcept {
-    // if (pro::)
-    static auto &data = config::ins().max_value[pro::max_value_type::life];
+    static auto &data = config::get<cmax_t>(pro::life);
     if (!data)
         return;
 
@@ -21,7 +20,7 @@ void set_life() noexcept {
 }
 
 void set_mana() noexcept {
-    static auto &data = config::ins().max_value[pro::max_value_type::mana];
+    static auto &data = config::get<cmax_t>(pro::mana);
     if (!data)
         return;
 
@@ -35,7 +34,7 @@ void set_mana() noexcept {
 void set_damage() noexcept {
     static auto &data =
         config::ins().float_value[pro::float_value_type::damage];
-    if (data)
+    if (!data)
         return;
     auto p = world::local_player();
 
@@ -94,7 +93,6 @@ void after_reset_effects() noexcept {
     super_move();
     set_damage();
 }
-
 
 } // namespace func
 } // namespace tl

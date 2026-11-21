@@ -129,7 +129,7 @@ void auto_aim() noexcept {
 
 TL_Register_World_Call(auto_aim);
 
-void super_npc_spawn_rate() {
+void super_npc_spawn_rate() noexcept {
     static auto ms = npc::_main_class->mfield("maxSpawns");
     static auto sr = npc::_main_class->mfield("spawnRate");
     static auto df_sr = npc::_main_class->mfield("defaultSpawnRate");

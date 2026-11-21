@@ -35,7 +35,9 @@ class server_route_caller {
     }
 
     virtual bool handle() { return false; }
-    virtual bool handle(pro::confirm &confirm) noexcept { return false; }
+    virtual bool handle(pro::confirm &) noexcept { return false; }
+
+    virtual ~server_route_caller() = default;
 };
 
 class websocket_server {
@@ -46,7 +48,7 @@ class websocket_server {
     explicit websocket_server(std::uint16_t port) noexcept
         : server(port, "127.0.0.1") {
         server.setOnClientMessageCallback(
-            [this](std::shared_ptr<ix::ConnectionState> state,
+            [this](std::shared_ptr<ix::ConnectionState> /*state*/,
                    ix::WebSocket &conn,
                    const ix::WebSocketMessagePtr &message) {
                 if (message == nullptr) {
@@ -107,6 +109,10 @@ class websocket_server {
         conn.sendBinary(packet.SerializeAsString());
     }
 
+    template <typename Func> void set_interceptor(Func &&f) noexcept {
+        interceptor = std::forward<Func>(f);
+    }
+
   private:
     void set_packet_error(pro::packet &packet,
                           const std::string &err) noexcept {
@@ -120,6 +126,8 @@ class websocket_server {
 
     void handle_message(pro::packet &packet,
                         pro::confirm &confirm_msg) noexcept {
+        if (interceptor && interceptor(packet, confirm_msg))
+            return;
 
         auto it = routes.find(packet.cmd());
         if (it == routes.end()) {
@@ -147,12 +155,13 @@ class websocket_server {
     ix::WebSocketServer server;
     std::thread ws_thr;
     std::atomic<bool> running;
+    std::function<bool(const pro::packet &, pro::confirm &)> interceptor;
 };
 
 template <typename Caller> struct __register_router {
     explicit __register_router(pro::pk_cmd cmd,
-                               std::string_view debug_class_name) noexcept {
-        auto [_, inserted] = websocket_server::routes.emplace(
+                               std::string_view /*debug_class_name*/) noexcept {
+        websocket_server::routes.emplace(
             cmd, []() { return std::make_unique<Caller>(); });
 #if 0
         LOGI("register router cmd=%d inserted=%d class=%s",

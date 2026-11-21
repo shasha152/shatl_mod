@@ -5,13 +5,13 @@ project(shatl VERSION 1.0 LANGUAGES CXX)
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
+set(CMAKE_BUILD_TYPE Release)
 
 set(protobuf_BUILD_TESTS OFF CACHE BOOL "" FORCE)
 set(protobuf_BUILD_CONFORMANCE OFF CACHE BOOL "" FORCE)
 set(protobuf_BUILD_EXAMPLES OFF CACHE BOOL "" FORCE)
 set(protobuf_BUILD_PROTOC_BINARIES ON CACHE BOOL "" FORCE)
 set(protobuf_BUILD_LIBPROTOC OFF CACHE BOOL "" FORCE)
-set(protobuf_BUILD_LIBUPB OFF CACHE BOOL "" FORCE)
 
 add_subdirectory(third-party/imgui)
 add_subdirectory(third-party/xdl)
@@ -75,6 +75,27 @@ add_custom_target(generate_proto
   ${PROTO_HDRS}
 )
 
+add_compile_options(
+  -Wall
+  -Wextra)
+
+add_compile_options(
+  -O2
+  -DNDEBUG
+  -ffunction-sections
+  -fdata-sections
+  -fvisibility=hidden
+  -fvisibility-inlines-hidden
+  -flto=thin
+)
+add_link_options(
+  -Wl,--gc-sections
+  -Wl,--strip-all
+  -Wl,--exclude-libs,ALL
+  -Wl,--icf=safe
+  -flto=thin
+)
+
 file(GLOB SOURCES src/*.cpp src/register/*.cpp src/server/*.cpp src/texture/*.cpp)
 add_library(shatl SHARED main/lib.cpp ${SOURCES} ${PROTO_SRCS})
 
@@ -93,6 +114,3 @@ target_include_directories(shatl PRIVATE
   ${CMAKE_CURRENT_SOURCE_DIR}/third-party/protobuf/third_party/utf8_range
 )
 target_include_directories(shatl PUBLIC ${CMAKE_SOURCE_DIR}/include)
-add_compile_options(
-  -Wall
-  -Wextra)

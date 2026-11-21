@@ -25,7 +25,7 @@ struct player : il2cpp::object<player>, entity_ex {
 // System.Boolean dodgeable); // 0x1281A08
 install_hook_name(Hurt, double, void *self, void *p1, int i2, int i3, bool b4,
                   bool b5, bool b6, int i7, bool b8) {
-    if (config::ins().max_value[pro::life]) {
+    if (config::get<cmax_t>(pro::life)) {
         return 0;
     }
 

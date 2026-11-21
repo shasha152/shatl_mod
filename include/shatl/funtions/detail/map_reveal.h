@@ -26,9 +26,7 @@ class map_reveal : public std::enable_shared_from_this<map_reveal> {
   public:
     map_reveal() noexcept = default;
 
-    bool is_run() noexcept {
-        return is_running.load();
-    }
+    bool is_run() noexcept { return is_running.load(); }
 
     void run() {
         bool expected = false;
@@ -46,26 +44,10 @@ class map_reveal : public std::enable_shared_from_this<map_reveal> {
             int total = self->chunks_x * self->chunks_y;
             for (int i = 0; i < total; ++i) {
                 register_once_function([self, total]() {
-                    if (self->curr_chunk >= total) {
+                    if (self->curr_chunk >= total)
                         return;
-                    }
 
-                    int chunk_x = self->curr_chunk % self->chunks_x;
-                    int chunk_y = self->curr_chunk / self->chunks_x;
-
-                    int start_x = chunk_x * chunk_size;
-                    int start_y = chunk_y * chunk_size;
-
-                    int end_x =
-                        std::min(start_x + chunk_size, self->map_size_x);
-                    int end_y =
-                        std::min(start_y + chunk_size, self->map_size_y);
-
-                    for (int y = start_y; y < end_y; ++y)
-                        for (int x = start_x; x < end_x; ++x)
-                            self->map->update_lighting(x, y, 255);
-
-                    self->curr_chunk++;
+                    self->update_chuck_lighting();
 
                     if (self->curr_chunk == total) {
                         self->map->save();
@@ -89,6 +71,23 @@ class map_reveal : public std::enable_shared_from_this<map_reveal> {
         chunks_x = (map_size_x + chunk_size - 1) / chunk_size;
         chunks_y = (map_size_y + chunk_size - 1) / chunk_size;
         curr_chunk = 0;
+    }
+
+    void update_chuck_lighting() {
+        int chunk_x = curr_chunk % chunks_x;
+        int chunk_y = curr_chunk / chunks_x;
+
+        int start_x = chunk_x * chunk_size;
+        int start_y = chunk_y * chunk_size;
+
+        int end_x = std::min(start_x + chunk_size, map_size_x);
+        int end_y = std::min(start_y + chunk_size, map_size_y);
+
+        for (int y = start_y; y < end_y; ++y)
+            for (int x = start_x; x < end_x; ++x)
+                map->update_lighting(x, y, 255);
+
+        curr_chunk++;
     }
 };
 } // namespace func

@@ -2,7 +2,7 @@
 #include "packet.pb.h"
 #include "shatl/funtions/config.h"
 #include "shatl/funtions/detail/map_reveal.h"
-#include "shatl/funtions/webservice.h"
+#include "shatl/funtions/server/webservice.h"
 #include "shatl/utils/log.h"
 #include <memory>
 
@@ -37,9 +37,9 @@ TL_Register_Router(_grab_world_item, pro::cmd_grab_world_item);
 class _auto_aim_entity : public server_route_caller {
     bool handle() noexcept override {
         auto value = as<pro::REQauto_aim>();
-        if (value) [[likely]] {
+        if (value) [[likely]]
             config::ins().auto_aim.CopyFrom(value.value());
-        }
+
         return true;
     }
 };

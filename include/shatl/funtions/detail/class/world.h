@@ -8,9 +8,10 @@
 #include "shatl/funtions/detail/register.h"
 #include "shatl/il2cpp/il2cpp.h"
 #include "shatl/imgui/detail/gui.h"
+#include "shatl/utils/log.h"
 #include <dobby.h>
 #include <string>
-
+#include <thread>
 
 namespace tl {
 namespace func {
@@ -72,9 +73,11 @@ struct world : il2cpp::object<world> {
         return _local_player;
     }
 
-    // static bool ready() noexcept {
-
-    // }
+    static bool ready() noexcept {
+        return instance() &&
+               _main_class->mfield("ItemDropsDB")->static_value<void *>() &&
+               _main_class->mfield("BestiaryDB")->static_value<void *>();
+    }
 };
 
 struct world_item : il2cpp::object<world_item>, entity_ex {
@@ -153,7 +156,15 @@ inline il2cpp::array<item *> *get_local_player_bag() {
 }
 
 inline void world_init() noexcept {
-    world::init();
+    while (!world::_main_class) {
+        world::init();
+        std::this_thread::yield();
+    }
+
+    while (!world::ready())
+        std::this_thread::yield();
+
+    LOGI("游戏已加载");
 
     auto w = world::instance();
     if (w == nullptr) [[unlikely]] {

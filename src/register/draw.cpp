@@ -5,13 +5,12 @@
 #include "shatl/funtions/detail/class/world.h"
 #include "shatl/il2cpp/il2cpp.h"
 #include "shatl/imgui/buffer.h"
-#include "shatl/utils/log.h"
 #include <string>
 namespace tl {
 namespace func {
 
 void draw_entity(entity *e, bool draw_line, bool draw_rect,
-                 std::string name = "") {
+                 std::string name = "") noexcept {
     auto left_top = e->position;
     auto screen_left_top =
         world::to_real_screen(utils::to_screen_position(left_top));
@@ -58,7 +57,7 @@ void draw_arr_entity(il2cpp::array<Entity *> *arr) noexcept {
     }
 }
 
-void main_draw() {
+void main_draw() noexcept {
     if (config::ins().draw.draw_npc())
         draw_arr_entity(world::npcs());
     if (config::ins().draw.draw_player())

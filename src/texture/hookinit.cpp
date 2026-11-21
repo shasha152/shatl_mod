@@ -1,6 +1,7 @@
 #include "shatl/funtions/detail/class/texture2D.h"
 #include "shatl/funtions/detail/class/world.h"
 #include "shatl/il2cpp/il2cpp.h"
+#include "shatl/package/package.h"
 #include "shatl/utils/log.h"
 
 #include <filesystem>
@@ -48,7 +49,7 @@ struct assets {
         std::optional<std::string> result;
 
         for (const auto &n : texture_paths) {
-            auto path = data_path + n + p + ".png";
+            auto path = n + "/" + p + ".png";
 
             if (has_file(path)) {
                 result = std::move(path);
@@ -93,13 +94,6 @@ void update_texture_package() noexcept {
     if (g_assets.is_path_empty())
         return;
 
-    auto main_class = func::world::_main_class;
-
-    while (!main_class->mfield("ItemDropsDB")->static_value<void *>() ||
-           !main_class->mfield("BestiaryDB")->static_value<void *>()) {
-        sleep(1);
-    }
-
     func::register_once_function([]() {
         auto load = [](il2cpp::field *f) {
             using ta = func::texture_assets;
@@ -124,8 +118,15 @@ void update_texture_package() noexcept {
 void init() noexcept {
     func::texture2D::init();
     func::texture_assets::init();
-    // g_assets.add_path("/灾厄/Content/");
-    // g_assets.add_path("/我的世界/Content/");
+
+    LOGI("资源包加载");
+    auto packages = read_packages();
+    for (const auto &pack : packages) {
+        if (pack.is_enable()) {
+            LOGI("添加资源包:%s", pack.content_path_string().c_str());
+            // g_assets.add_path(pack.content_path_string());
+        }
+    }
 
     update_texture_package();
 }

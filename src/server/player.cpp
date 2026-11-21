@@ -1,9 +1,10 @@
 #include "packet.pb.h"
 #include "setting.pb.h"
+#include "shatl/funtions/config.h"
 #include "shatl/funtions/detail/class/item.h"
 #include "shatl/funtions/detail/class/lang.h"
 #include "shatl/funtions/detail/class/world.h"
-#include "shatl/funtions/webservice.h"
+#include "shatl/funtions/server/webservice.h"
 #include "shatl/utils/log.h"
 #include <utility>
 
@@ -63,7 +64,7 @@ class _max_value_setting : public server_route_caller {
         if (type < 0 || type >= pro::max_value_type_MAX + 1)
             return false;
 
-        auto &data = config::ins().max_value[type];
+        auto &data = config::get<cmax_t>(type);
         data.value = value->value();
         data.is_enable = value->is_open();
         data.max = value->max();
@@ -201,8 +202,8 @@ class _set_item_pro : public server_route_caller {
 TL_Register_Router(_set_item_pro, pro::cmd_set_item_pro);
 
 class _get_item_names : public server_route_caller {
+    pro::RESitem_names res;
     bool handle(pro::confirm &confirm) noexcept override {
-        pro::RESitem_names res;
         auto localized_texts = lang::item_localized_texts();
         if (localized_texts == nullptr)
             return false;
