@@ -3,9 +3,18 @@ syntax = "proto3";
 option optimize_for = LITE_RUNTIME;
 
 package tl.pro;
-
+import "meta.proto";
 
 message REQnew_npc {
   int32 type = 1;
   int32 target = 2;
+}
+
+
+message REQplace_tile {
+  int32 width = 1;
+  int32 height = 2;
+  repeated ivector2 pos = 3;
+  repeated int32 type = 4;
+  bool is_kill_tile = 5;
 }

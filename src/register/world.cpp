@@ -7,13 +7,14 @@
 #include "shatl/funtions/detail/class/npc.h"
 #include "shatl/funtions/detail/class/player.h"
 #include "shatl/funtions/detail/class/utils.h"
+#include "shatl/funtions/detail/register.h"
 #include "shatl/il2cpp/il2cpp.h"
 #include <utility>
 
 namespace tl {
 namespace func {
 void set_light_color() noexcept {
-    bool is_open = config::ins().bool_value[pro::light_color];
+    bool is_open = config::get<cbool_t>(pro::light_color);
     if (!is_open)
         return;
 
@@ -105,7 +106,7 @@ Entity *get_target_entity(player *me, il2cpp::array<Entity *> *arr,
 }
 
 void auto_aim() noexcept {
-    auto &cfg = config::ins().auto_aim;
+    auto &cfg = config::get<caim_t>();
     if (cfg.is_open())
         return;
     auto p = world::local_player();

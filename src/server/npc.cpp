@@ -1,10 +1,13 @@
 #include "shatl/funtions/detail/class/npc.h"
+#include "item.pb.h"
 #include "packet.pb.h"
 #include "shatl/funtions/detail/class/lang.h"
 #include "shatl/funtions/detail/class/world.h"
+#include "shatl/funtions/detail/register.h"
 #include "shatl/funtions/server/webservice.h"
 #include "shatl/il2cpp/il2cpp.h"
 #include "world.pb.h"
+
 
 namespace tl {
 namespace func {

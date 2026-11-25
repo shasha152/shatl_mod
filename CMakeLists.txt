@@ -31,6 +31,7 @@ set(PROTO_FILES
   ${PROTO_DIR}/multi_player.proto
   ${PROTO_DIR}/esp.proto
   ${PROTO_DIR}/world.proto
+  ${PROTO_DIR}/meta.proto
 )
 
 set(PROTO_SRCS)
@@ -96,7 +97,7 @@ add_link_options(
   -flto=thin
 )
 
-file(GLOB SOURCES src/*.cpp src/register/*.cpp src/server/*.cpp src/texture/*.cpp)
+file(GLOB SOURCES src/*.cpp src/register/*.cpp src/server/*.cpp src/texture/*.cpp src/hooks/*.cpp)
 add_library(shatl SHARED main/lib.cpp ${SOURCES} ${PROTO_SRCS})
 
 target_link_libraries(shatl PRIVATE

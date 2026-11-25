@@ -7,6 +7,7 @@
 
 #include <array>
 #include <cstddef>
+#include <type_traits>
 #include <vector>
 
 #include "shatl/utils/reflection.h"
@@ -49,9 +50,18 @@ struct config {
         return c;
     }
 
-    template <typename T> static T &get() noexcept { return tl::get<T>(ins()); }
+    template <typename T> static const T &get() noexcept {
+        return tl::get<T>(ins());
+    }
+    template <typename T> static T &ref() noexcept { return tl::get<T>(ins()); }
+
     template <typename T>
-    static typename T::value_type &get(std::size_t i) noexcept {
+    static typename T::value_type &ref(std::size_t i) noexcept {
+        return tl::get<T>(ins())[i];
+    }
+
+    template <typename T>
+    static const typename T::value_type &get(std::size_t i) noexcept {
         return tl::get<T>(ins())[i];
     }
 

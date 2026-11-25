@@ -4,6 +4,7 @@
 #include "shatl/funtions/detail/class/item.h"
 #include "shatl/funtions/detail/class/lang.h"
 #include "shatl/funtions/detail/class/world.h"
+#include "shatl/funtions/detail/register.h"
 #include "shatl/funtions/server/webservice.h"
 #include "shatl/utils/log.h"
 #include <utility>
@@ -64,7 +65,7 @@ class _max_value_setting : public server_route_caller {
         if (type < 0 || type >= pro::max_value_type_MAX + 1)
             return false;
 
-        auto &data = config::get<cmax_t>(type);
+        auto &data = config::ref<cmax_t>(type);
         data.value = value->value();
         data.is_enable = value->is_open();
         data.max = value->max();

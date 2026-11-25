@@ -31,12 +31,10 @@ void hook_thread() noexcept {
     }
     LOGI("imgui初始化完成");
 
-    LOGI("func初始化...");
+    LOGI("初始化...");
     tl::func::initialize();
-    LOGI("func初始化完成");
+    LOGI("初始化完成");
 }
-
-// Terraria.GameContent.TextureAssets
 
 __attribute__((constructor)) void lib_main() {
     std::thread thread(hook_thread);

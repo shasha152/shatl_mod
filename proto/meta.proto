@@ -1,0 +1,10 @@
+syntax = "proto3";
+
+option optimize_for = LITE_RUNTIME;
+
+package tl.pro;
+
+message ivector2 {
+  int32 x = 1;
+  int32 y = 2;
+}

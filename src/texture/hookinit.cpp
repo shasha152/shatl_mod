@@ -1,5 +1,6 @@
 #include "shatl/funtions/detail/class/texture2D.h"
-#include "shatl/funtions/detail/class/world.h"
+#include "shatl/funtions/detail/register.h"
+#include "shatl/funtions/maininit.h"
 #include "shatl/il2cpp/il2cpp.h"
 #include "shatl/package/package.h"
 #include "shatl/utils/log.h"
@@ -130,6 +131,8 @@ void init() noexcept {
 
     update_texture_package();
 }
+
+TL_Register_Init(PRIORITY_HIGH, init);
 
 } // namespace tex
 } // namespace tl

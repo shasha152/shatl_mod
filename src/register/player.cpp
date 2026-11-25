@@ -1,3 +1,5 @@
+#include "shatl/funtions/detail/class/player.h"
+#include "setting.pb.h"
 #include "shatl/funtions/config.h"
 #include "shatl/funtions/detail/class/localuser_game_state.h"
 #include "shatl/funtions/detail/class/world.h"
@@ -32,8 +34,7 @@ void set_mana() noexcept {
 }
 
 void set_damage() noexcept {
-    static auto &data =
-        config::ins().float_value[pro::float_value_type::damage];
+    static auto &data = config::get<cfloat_t>(pro::damage);
     if (!data)
         return;
     auto p = world::local_player();
@@ -47,16 +48,14 @@ void super_move() noexcept {
     auto p = world::local_player();
     if (!p)
         return;
-    auto &ctrl_fly =
-        config::ins().float_value[pro::float_value_type::control_fly];
-    auto &cursor_fly =
-        config::ins().float_value[pro::float_value_type::cursor_fly];
+    const auto &ctrl_fly = config::get<cfloat_t>(pro::control_fly);
+    const auto &cursor_fly = config::get<cfloat_t>(pro::cursor_fly);
     if (ctrl_fly || cursor_fly)
         p->velocity = il2cpp::vector2();
     else
         return;
 
-    float speed = ctrl_fly ? ctrl_fly.value : cursor_fly.value;
+    const float speed = ctrl_fly ? ctrl_fly.value : cursor_fly.value;
 
     if (ctrl_fly) {
         if (p->get<bool>("controlLeft"))
@@ -73,11 +72,11 @@ void super_move() noexcept {
     }
 
     if (cursor_fly) {
-        auto wh_c = il2cpp::vector2(im::detail::get_screen_width(),
-                                    im::detail::get_screen_height()) /
-                    2;
+        const auto wh_c = il2cpp::vector2(im::detail::get_screen_width(),
+                                          im::detail::get_screen_height()) /
+                          2;
         auto state = local_user_state_xna::instance();
-        auto pos =
+        const auto pos =
             (il2cpp::vector2(state->get<float>("_virtualCursorOverrideX"),
                              state->get<float>("_virtualCursorOverrideY")) -
              wh_c) /
@@ -87,7 +86,10 @@ void super_move() noexcept {
     p->set("maxFallSpeed", 99999.0f);
 }
 
-void after_reset_effects() noexcept {
+void after_reset_effects(player *player) noexcept {
+    if (player != world::local_player())
+        return;
+
     set_life();
     set_mana();
     super_move();

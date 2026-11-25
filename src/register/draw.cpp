@@ -3,9 +3,11 @@
 #include "shatl/funtions/detail/class/entity.h"
 #include "shatl/funtions/detail/class/utils.h"
 #include "shatl/funtions/detail/class/world.h"
+#include "shatl/funtions/detail/register.h"
 #include "shatl/il2cpp/il2cpp.h"
 #include "shatl/imgui/buffer.h"
 #include <string>
+
 namespace tl {
 namespace func {
 
@@ -48,21 +50,23 @@ void draw_arr_entity(il2cpp::array<Entity *> *arr) noexcept {
     if (!arr) [[unlikely]]
         return;
 
+    const auto &draw = config::get<cdobj_t>();
+
     for (auto e : *arr) {
         if (e && e->is_active())
-            draw_entity(reinterpret_cast<entity *>(e),
-                        config::ins().draw.draw_line(),
-                        config::ins().draw.draw_rect()
+            draw_entity(reinterpret_cast<entity *>(e), draw.draw_line(),
+                        draw.draw_rect()
                         /*,e->get_name()*/);
     }
 }
 
 void main_draw() noexcept {
-    if (config::ins().draw.draw_npc())
+    const auto &draw = config::get<cdobj_t>();
+    if (draw.draw_npc())
         draw_arr_entity(world::npcs());
-    if (config::ins().draw.draw_player())
+    if (draw.draw_player())
         draw_arr_entity(world::players());
-    if (config::ins().draw.draw_world_item())
+    if (draw.draw_world_item())
         draw_arr_entity(world_item::world_items());
 
     im::double_draw_buffer::ins().finish();
